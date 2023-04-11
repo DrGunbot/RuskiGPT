@@ -12,6 +12,7 @@ export const Nav = styled(motion.nav)`
   background-color: rgba(0, 0, 0, 0.1);
   color: #50ae55;
   font-size: 2rem;
+  z-index: 2;
 `;
 
 // Navigation title

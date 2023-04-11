@@ -1,14 +1,37 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const { Configuration, OpenAIApi } = require('openai');
-const { body, validationResult } = require('express-validator');
-const rateLimit = require('express-rate-limit');
-const fs = require('fs');
-const path = require('path');
-const os = require('os'); // Added operating system library
-const { createClient } = require('@supabase/supabase-js');
-const logFolderPath = path.join(__dirname, 'logs');
+// require('dotenv').config();
+// const express = require('express');
+// const cors = require('cors');
+// const { Configuration, OpenAIApi } = require('openai');
+// const { body, validationResult } = require('express-validator');
+// const rateLimit = require('express-rate-limit');
+// const fs = require('fs');
+// const path = require('path');
+// const os = require('os');
+// const { createClient } = require('@supabase/supabase-js');
+// const logFolderPath = path.join(__dirname, 'logs');
+// const axios = require('axios');
+// const { ethers } = require('ethers');
+// const { getProvider } = require('@wagmi/core');
+
+
+
+import dotenv from 'dotenv';
+dotenv.config();
+import express from 'express';
+import cors from 'cors';
+import { Configuration, OpenAIApi } from 'openai';
+import { body, validationResult } from 'express-validator';
+import rateLimit from 'express-rate-limit';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import { createClient } from '@supabase/supabase-js';
+
+const coingeckoClient = new CoinGecko();
+
+// ...rest of the code remains the same
+
+const logFolderPath = './logs';
 
 if (!fs.existsSync(logFolderPath)) {
   fs.mkdirSync(logFolderPath, { recursive: true });
@@ -232,60 +255,9 @@ if (!existingUser) {
 res.status(200).json({ message: 'Wallet connected successfully' });
 });
 
-app.post('/api/purchase', async (req, res) => {
-const { walletAddress, transactionHash, tokensBought } = req.body;
 
-// Verify the transaction
-// Here you should verify the transaction details using your preferred method (e.g., Etherscan API)
-// Make sure the transaction is confirmed and the amount of ETH matches the tokensBought value
-// For simplicity, we'll assume the transaction is valid in this example
 
-// Check if the user already exists in the database
-const { data: existingUser, error } = await supabase
-  .from('user_tokens')
-  .select('*')
-  .eq('wallet_address', walletAddress)
-  .single();
 
-if (error) {
-  console.error('Error fetching user from the database:', error);
-  return res.status(500).json({ message: 'Internal Server Error' });
-}
-
-if (existingUser) {
-  // Update the existing user's token balance
-  const { data: updatedUser, error } = await supabase
-    .from('user_tokens')
-    .update({
-      tokens_owned: existingUser.tokens_owned + tokensBought,
-      tokens_purchased: existingUser.tokens_purchased + tokensBought,
-    })
-    .eq('wallet_address', walletAddress);
-
-  if (error) {
-    console.error('Error updating user in the database:', error);
-    return res.status(500).json({ message: 'Internal Server Error' });
-  }
-
-  res.status(200).json(updatedUser);
-} else {
-  // Create a new user in the database
-  const { data: newUser, error } = await supabase
-    .from('user_tokens')
-    .insert({
-      wallet_address: walletAddress,
-      tokens_owned: tokensBought,
-      tokens_purchased: tokensBought,
-    });
-
-  if (error) {
-    console.error('Error inserting user into the database:', error);
-    return res.status(500).json({ message: 'Internal Server Error' });
-  }
-
-  res.status(201).json(newUser);
-}
-});
 
 app.listen(port, () => {
 console.log(`Server running on port ${port}`);

@@ -8,7 +8,7 @@ import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum'
 import { configureChains, createClient, WagmiConfig } from 'wagmi';
 import { arbitrum, mainnet, polygon } from 'wagmi/chains';
 import Home from "./components/Home";
-import Buy from "./components/Buy";
+import PurchasePage from "./components/PurchasePage";
 
 const chains = [arbitrum, mainnet, polygon];
 const projectId = process.env.REACT_APP_PROJECT_ID
@@ -28,7 +28,7 @@ function App() {
         <NavBar projectId={projectId} ethereumClient={ethereumClient} />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/buy" element={<Buy />} />
+          <Route path="/buy" element={<PurchasePage />} />
         </Routes>
         <Chatbot ethereumClient={ethereumClient} />
       </WagmiConfig>
