@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import styled from '@emotion/styled';
 import axios from 'axios';
 
@@ -26,6 +26,7 @@ const ModalContainer = styled(motion.div)`
   border-radius: 10px;
   width: 600px;
   border: 2px solid #4caf50;
+  overflow: hidden;
 `;
 
 const CloseButton = styled.span`
@@ -33,6 +34,9 @@ const CloseButton = styled.span`
   color: red;
   font-size: 24px;
   font-weight: bold;
+  &:hover {
+    color: #ff7f7f;
+  }
 `;
 
 const CryptoDropdown = styled.select`
@@ -40,6 +44,9 @@ const CryptoDropdown = styled.select`
   height: 40px;
   border-radius: 5px;
   border: 1px solid #4caf50;
+  &:hover {
+    border-color: #2e7d32;
+  }
 `;
 
 const ProgressBarContainer = styled.div`
@@ -50,27 +57,45 @@ const ProgressBarContainer = styled.div`
   margin-top: 10px;
 `;
 
-const ProgressBar = styled.div`
+const ProgressBar = styled(motion.div)`
   width: ${(props) => props.progress}%;
   height: 100%;
   background-color: #4caf50;
   border-radius: 5px;
 `;
 
+const PaymentDetails = styled(motion.div)`
+  margin-top: 10px;
+`;
+
+const WalletAddress = styled.span`
+  cursor: pointer;
+  color: #4caf50;
+  font-weight: bold;
+  &:hover {
+    color: #2e7d32;
+  }
+`;
+
 const CryptoSelectionModal = ({ onClose, onSelectCrypto, tokenAmount }) => {
+  const [cryptos, setCryptos] = useState([]);
+  const [selectedCrypto, setSelectedCrypto] = useState(null);
+  const [transactionProgress, setTransactionProgress] = useState(0);
+  const [transactionError, setTransactionError] = useState(null);
+  const [priceAmount, setPriceAmount] = useState(0);
+  const [coinPrices, setCoinPrices] = useState({});
+  const [tokenPrice, setTokenPrice] = useState(0);
+  const [paymentDetails, setPaymentDetails] = useState(null);
+  const walletAddressRef = useRef(null);
 
-    const [cryptos, setCryptos] = useState([]);
-    const [selectedCrypto, setSelectedCrypto] = useState(null);
-    const [transactionProgress, setTransactionProgress] = useState(0);
-    const [transactionError, setTransactionError] = useState(null);
-    const [priceAmount, setPriceAmount] = useState(0);
-    const [coinPrices, setCoinPrices] = useState({});
-    const [tokenPrice, setTokenPrice] = useState(0);
-    // const [paymentDetails, setPaymentDetails] = useState(null);
+  const detailsAnimation = useAnimation();
+  const progressAnimation = useAnimation();
 
+  useEffect(() => {
+    progressAnimation.start({ width: `${transactionProgress}%` });
+  }, [transactionProgress, progressAnimation]);
 
-
-    const handleSelectCrypto = (e) => {
+  const handleSelectCrypto = (e) => {
         const selected = e.target.value;
         const selectedCryptoObj = cryptos.find(crypto => crypto.symbol === selected);
         setSelectedCrypto(selectedCryptoObj);
@@ -85,7 +110,7 @@ const CryptoSelectionModal = ({ onClose, onSelectCrypto, tokenAmount }) => {
     const handleConfirmSelection = async () => {
         if (selectedCrypto) {
             try {
-                console.log('Selected crypto:', selectedCrypto); 
+                console.log('Selected crypto:', selectedCrypto);
                 // Create the payment
                 const paymentResponse = await apiClient.post(
                     '/api/create-payment',
@@ -95,7 +120,10 @@ const CryptoSelectionModal = ({ onClose, onSelectCrypto, tokenAmount }) => {
                         pay_currency: selectedCrypto.symbol, // Send the selectedCrypto.symbol as pay_currency
                     }
                 );
-                console.log('Payment response:', paymentResponse.data); 
+                console.log('Payment response:', paymentResponse.data);
+
+                // Set the payment details state with the received information
+                setPaymentDetails(paymentResponse.data);
 
                 const paymentId = paymentResponse.data.payment_id;
 
@@ -135,6 +163,23 @@ const CryptoSelectionModal = ({ onClose, onSelectCrypto, tokenAmount }) => {
         }
     };
 
+    const handleCopyWalletAddress = () => {
+        if (walletAddressRef.current) {
+          const el = document.createElement('textarea');
+          el.value = walletAddressRef.current.textContent;
+          document.body.appendChild(el);
+          el.select();
+          document.execCommand('copy');
+          document.body.removeChild(el);
+    
+          // Show a temporary message to indicate the address has been copied
+          detailsAnimation.start({ scale: 0.9 }).then(() => {
+            detailsAnimation.start({ scale: 1 });
+          });
+        }
+      };
+
+
     useEffect(() => {
         const fetchCoinListAndPrices = async () => {
             try {
@@ -159,51 +204,85 @@ const CryptoSelectionModal = ({ onClose, onSelectCrypto, tokenAmount }) => {
 
     return (
         <AnimatePresence>
-            <ModalOverlay
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+          <ModalOverlay
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <ModalContainer
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0 }}
             >
-                <ModalContainer
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    exit={{ scale: 0 }}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <h2>Select Cryptocurrency</h2>
+                <CloseButton onClick={onClose}>&times;</CloseButton>
+              </div>
+              {!paymentDetails ? (
+                <>
+                  <CryptoDropdown onChange={handleSelectCrypto}>
+                    {cryptos.map((crypto, index) => (
+                      <option key={index} value={crypto.symbol}>
+                        {crypto.name}
+                      </option>
+                    ))}
+                  </CryptoDropdown>
+                  <div>
+                    <p>Current exchange rate: ...</p>
+                    <p>Price Amount: {priceAmount}</p>
+                    <p>Additional information: ...</p>
+                    <button onClick={handleConfirmSelection}>
+                      Confirm Selection
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <PaymentDetails
+                  initial={{ opacity: 0, y: -50 }}
+                  animate={{ opacity: 1, y: 0 }}
                 >
-                    <div
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                        }}
+                  <h3>Payment Details</h3>
+                  <p>Send the payment to the following address:</p>
+                  <p>
+                    <WalletAddress
+                      ref={walletAddressRef}
+                      onClick={handleCopyWalletAddress}
                     >
-                        <h2>Select Cryptocurrency</h2>
-                        <CloseButton onClick={onClose}>&times;</CloseButton>
-                    </div>
-                    <CryptoDropdown onChange={handleSelectCrypto}>
-                        {cryptos.map((crypto, index) => (
-                            <option key={index} value={crypto.symbol}>
-                                {crypto.name}
-                            </option>
-                        ))}
-                    </CryptoDropdown>
-                    <div>
-                        <p>Current exchange rate: ...</p>
-                        <p>Price Amount: {priceAmount}</p>
-                        <p>Additional information: ...</p>
-                        <button onClick={handleConfirmSelection}>Confirm Selection</button>
-                    </div>
-                    <ProgressBarContainer>
-                        <ProgressBar progress={transactionProgress} />
-                    </ProgressBarContainer>
-                    {transactionError && (
-                        <div>
-                            <p>Error: {transactionError.message}</p>
-                        </div>
-                    )}
-                </ModalContainer>
-            </ModalOverlay>
+                      {paymentDetails.pay_address}
+                    </WalletAddress>
+                  </p>
+                  <p>Amount to send:</p>
+                  <p>
+                    {paymentDetails.pay_amount}{' '}
+                    {paymentDetails.pay_currency.toUpperCase()}
+                  </p>
+                  <p>Payment ID:</p>
+                  <p>{paymentDetails.payment_id}</p>
+                  <p>Valid until:</p>
+                  <p>{paymentDetails.valid_until}</p>
+                </PaymentDetails>
+              )}
+              <ProgressBarContainer>
+                <ProgressBar
+                  progress={transactionProgress}
+                  animate={progressAnimation}
+                />
+              </ProgressBarContainer>
+              {transactionError && (
+                <div>
+                  <p>Error: {transactionError.message}</p>
+                </div>
+              )}
+            </ModalContainer>
+          </ModalOverlay>
         </AnimatePresence>
-    );
-};
-
-export default CryptoSelectionModal;
+      );
+    };
+    
+    export default CryptoSelectionModal;
