@@ -27,6 +27,7 @@ const ModalContainer = styled(motion.div)`
   width: 600px;
   border: 2px solid #4caf50;
   overflow: hidden;
+  position: relative;
 `;
 
 const CloseButton = styled.span`
@@ -34,18 +35,11 @@ const CloseButton = styled.span`
   color: red;
   font-size: 24px;
   font-weight: bold;
+  position: absolute;
+  top: 8px;
+  right: 10px;
   &:hover {
     color: #ff7f7f;
-  }
-`;
-
-const CryptoDropdown = styled.select`
-  width: 100%;
-  height: 40px;
-  border-radius: 5px;
-  border: 1px solid #4caf50;
-  &:hover {
-    border-color: #2e7d32;
   }
 `;
 
@@ -77,29 +71,79 @@ const WalletAddress = styled.span`
   }
 `;
 
+const CryptoDropdown = styled.select`
+  width: 100%;
+  height: 40px;
+  border-radius: 5px;
+  border: 1px solid #4caf50;
+  font-size: 1.1rem;
+  color: #4caf50;
+  background: white;
+`;
+
+const ConfirmButton = styled(motion.button)`
+  background-color: #4caf50;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+`;
+
+const Spinner = styled.div`
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border-left-color: #4caf50;
+  animation: spin 1s linear infinite;
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
 const CryptoSelectionModal = ({ onClose, onSelectCrypto, tokenAmount }) => {
-  const [cryptos, setCryptos] = useState([]);
-  const [selectedCrypto, setSelectedCrypto] = useState(null);
-  const [transactionProgress, setTransactionProgress] = useState(0);
-  const [transactionError, setTransactionError] = useState(null);
-  const [priceAmount, setPriceAmount] = useState(0);
-  const [coinPrices, setCoinPrices] = useState({});
-  const [tokenPrice, setTokenPrice] = useState(0);
-  const [paymentDetails, setPaymentDetails] = useState(null);
-  const walletAddressRef = useRef(null);
+    const [cryptos, setCryptos] = useState([]);
+    const [selectedCrypto, setSelectedCrypto] = useState(null);
+    const [transactionProgress, setTransactionProgress] = useState(0);
+    const [transactionError, setTransactionError] = useState(null);
+    const [priceAmount, setPriceAmount] = useState(0);
+    const [coinPrices, setCoinPrices] = useState({});
+    const [tokenPrice, setTokenPrice] = useState(0);
+    const [paymentDetails, setPaymentDetails] = useState(null);
+    const [isFetchingPaymentInfo, setIsFetchingPaymentInfo] = useState(false);
+    const walletAddressRef = useRef(null);
+    const detailsAnimation = useAnimation();
+    const progressAnimation = useAnimation();
 
-  const detailsAnimation = useAnimation();
-  const progressAnimation = useAnimation();
+    useEffect(() => {
+        if (isFetchingPaymentInfo) {
+            detailsAnimation.start({ opacity: 0.5 });
+        } else {
+            detailsAnimation.start({ opacity: 1 });
+        }
+    }, [isFetchingPaymentInfo, detailsAnimation]);
 
-  useEffect(() => {
-    progressAnimation.start({ width: `${transactionProgress}%` });
-  }, [transactionProgress, progressAnimation]);
+    useEffect(() => {
+        progressAnimation.start({ width: `${transactionProgress}%` });
+    }, [transactionProgress, progressAnimation]);
 
-  const handleSelectCrypto = (e) => {
+    const handleSelectCrypto = (e) => {
         const selected = e.target.value;
-        const selectedCryptoObj = cryptos.find(crypto => crypto.symbol === selected);
+        const selectedCryptoObj = cryptos.find((crypto) => crypto.symbol === selected);
         setSelectedCrypto(selectedCryptoObj);
-    
+
         // Calculate price_amount
         const coinPrice = coinPrices[selected]; // Make sure to import or fetch coinPrices
         const priceAmount = tokenAmount * tokenPrice / coinPrice;
@@ -110,8 +154,10 @@ const CryptoSelectionModal = ({ onClose, onSelectCrypto, tokenAmount }) => {
     const handleConfirmSelection = async () => {
         if (selectedCrypto) {
             try {
+                setIsFetchingPaymentInfo(true);
                 console.log('Selected crypto:', selectedCrypto);
                 // Create the payment
+                setIsFetchingPaymentInfo(true); // Add this line
                 const paymentResponse = await apiClient.post(
                     '/api/create-payment',
                     {
@@ -124,7 +170,7 @@ const CryptoSelectionModal = ({ onClose, onSelectCrypto, tokenAmount }) => {
 
                 // Set the payment details state with the received information
                 setPaymentDetails(paymentResponse.data);
-
+                setIsFetchingPaymentInfo(false);
                 const paymentId = paymentResponse.data.payment_id;
 
                 // Start the transaction progress updates
@@ -157,6 +203,7 @@ const CryptoSelectionModal = ({ onClose, onSelectCrypto, tokenAmount }) => {
                         setTransactionError(error);
                     }
                 }, 5000);
+                setIsFetchingPaymentInfo(false);
             } catch (error) {
                 setTransactionError(error);
             }
@@ -165,19 +212,19 @@ const CryptoSelectionModal = ({ onClose, onSelectCrypto, tokenAmount }) => {
 
     const handleCopyWalletAddress = () => {
         if (walletAddressRef.current) {
-          const el = document.createElement('textarea');
-          el.value = walletAddressRef.current.textContent;
-          document.body.appendChild(el);
-          el.select();
-          document.execCommand('copy');
-          document.body.removeChild(el);
-    
-          // Show a temporary message to indicate the address has been copied
-          detailsAnimation.start({ scale: 0.9 }).then(() => {
-            detailsAnimation.start({ scale: 1 });
-          });
+            const el = document.createElement('textarea');
+            el.value = walletAddressRef.current.textContent;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            // Show a temporary message to indicate the address has been copied
+            detailsAnimation.start({ scale: 0.9 }).then(() => {
+                detailsAnimation.start({ scale: 1 });
+            });
         }
-      };
+    };
 
 
     useEffect(() => {
@@ -188,7 +235,9 @@ const CryptoSelectionModal = ({ onClose, onSelectCrypto, tokenAmount }) => {
                     symbol: crypto,
                     name: crypto.toUpperCase(),
                 }));
-                setCryptos(cryptoList);
+
+                const sortedCryptoList = cryptoList.sort((a, b) => a.name.localeCompare(b.name));
+                setCryptos(sortedCryptoList);
 
                 const tokenPricesResponse = await axios.get('http://localhost:5000/api/tokenPrices');
                 setCoinPrices(tokenPricesResponse.data);
@@ -204,85 +253,139 @@ const CryptoSelectionModal = ({ onClose, onSelectCrypto, tokenAmount }) => {
 
     return (
         <AnimatePresence>
-          <ModalOverlay
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <ModalContainer
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0 }}
+            <ModalOverlay
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
             >
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <h2>Select Cryptocurrency</h2>
-                <CloseButton onClick={onClose}>&times;</CloseButton>
-              </div>
-              {!paymentDetails ? (
-                <>
-                  <CryptoDropdown onChange={handleSelectCrypto}>
-                    {cryptos.map((crypto, index) => (
-                      <option key={index} value={crypto.symbol}>
-                        {crypto.name}
-                      </option>
-                    ))}
-                  </CryptoDropdown>
-                  <div>
-                    <p>Current exchange rate: ...</p>
-                    <p>Price Amount: {priceAmount}</p>
-                    <p>Additional information: ...</p>
-                    <button onClick={handleConfirmSelection}>
-                      Confirm Selection
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <PaymentDetails
-                  initial={{ opacity: 0, y: -50 }}
-                  animate={{ opacity: 1, y: 0 }}
+                <ModalContainer
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
                 >
-                  <h3>Payment Details</h3>
-                  <p>Send the payment to the following address:</p>
-                  <p>
-                    <WalletAddress
-                      ref={walletAddressRef}
-                      onClick={handleCopyWalletAddress}
-                    >
-                      {paymentDetails.pay_address}
-                    </WalletAddress>
-                  </p>
-                  <p>Amount to send:</p>
-                  <p>
-                    {paymentDetails.pay_amount}{' '}
-                    {paymentDetails.pay_currency.toUpperCase()}
-                  </p>
-                  <p>Payment ID:</p>
-                  <p>{paymentDetails.payment_id}</p>
-                  <p>Valid until:</p>
-                  <p>{paymentDetails.valid_until}</p>
-                </PaymentDetails>
-              )}
-              <ProgressBarContainer>
-                <ProgressBar
-                  progress={transactionProgress}
-                  animate={progressAnimation}
-                />
-              </ProgressBarContainer>
-              {transactionError && (
-                <div>
-                  <p>Error: {transactionError.message}</p>
-                </div>
-              )}
-            </ModalContainer>
-          </ModalOverlay>
+                    {/* Add the conditional rendering of the Spinner */}
+                    {isFetchingPaymentInfo && (
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                                zIndex: 1,
+                            }}
+                        >
+                            <Spinner />
+                        </div>
+                    )}
+                    {!paymentDetails ? (
+                        <>
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <h2>Select Cryptocurrency</h2>
+                                <CloseButton onClick={onClose}>&times;</CloseButton>
+                            </div>
+                            <CryptoDropdown onChange={handleSelectCrypto}>
+                                {cryptos.map((crypto, index) => (
+                                    <option key={index} value={crypto.symbol}>
+                                        {crypto.name}
+                                    </option>
+                                ))}
+                            </CryptoDropdown>
+                            <div>
+                                <p>Current exchange rate: ...</p>
+                                <p>Price Amount: {priceAmount}</p>
+                                <p>Additional information: ...</p>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    <ConfirmButton
+                                        onClick={handleConfirmSelection}
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.9 }}
+                                    >
+                                        Confirm Selection
+                                    </ConfirmButton>
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <PaymentDetails
+                            initial={{ opacity: 0, y: -50 }}
+                            animate={{ opacity: 1, y: 0 }}
+                        >
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <h3>Payment Details</h3>
+                                <CloseButton onClick={onClose}>&times;</CloseButton>
+                            </div>
+                            {isFetchingPaymentInfo ? (
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    <Spinner />
+                                    <p style={{ marginTop: '10px', marginBottom: '10px' }}>
+                                        Grabbing payment details...
+                                    </p>
+                                </div>
+                            ) : (
+                                <>
+                                    <p>Send the payment to the following address:</p>
+                                    <p>
+                                        <WalletAddress
+                                            ref={walletAddressRef}
+                                            onClick={handleCopyWalletAddress}
+                                        >
+                                            {paymentDetails.pay_address}
+                                        </WalletAddress>
+                                    </p>
+                                    <p>Amount to send:</p>
+                                    <p>
+                                        {paymentDetails.pay_amount}{' '}
+                                        {paymentDetails.pay_currency.toUpperCase()}
+                                    </p>
+                                    <p>Payment ID:</p>
+                                    <p>{paymentDetails.payment_id}</p>
+                                    <p>Valid until:</p>
+                                    <p>{paymentDetails.valid_until}</p>
+                                </>
+                            )}
+                        </PaymentDetails>
+                    )}
+                    <ProgressBarContainer>
+                        <ProgressBar progress={transactionProgress} />
+                    </ProgressBarContainer>
+                    {transactionError && (
+                        <div>
+                            <p>Error: {transactionError.message}</p>
+                        </div>
+                    )}
+                </ModalContainer>
+            </ModalOverlay>
         </AnimatePresence>
-      );
-    };
-    
-    export default CryptoSelectionModal;
+    );
+};
+
+export default CryptoSelectionModal;
