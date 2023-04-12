@@ -1,37 +1,26 @@
-// require('dotenv').config();
-// const express = require('express');
-// const cors = require('cors');
-// const { Configuration, OpenAIApi } = require('openai');
-// const { body, validationResult } = require('express-validator');
-// const rateLimit = require('express-rate-limit');
-// const fs = require('fs');
-// const path = require('path');
-// const os = require('os');
-// const { createClient } = require('@supabase/supabase-js');
-// const logFolderPath = path.join(__dirname, 'logs');
-// const axios = require('axios');
-// const { ethers } = require('ethers');
-// const { getProvider } = require('@wagmi/core');
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const { Configuration, OpenAIApi } = require('openai');
+const { body, validationResult } = require('express-validator');
+const rateLimit = require('express-rate-limit');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+const { createClient } = require('@supabase/supabase-js');
+const logFolderPath = path.join(__dirname, 'logs');
+const axios = require('axios');
+const NOWPAYMENTS_API_KEY = process.env.REACT_APP_NOWPAYMENTS_API_KEY;
+const NOWPAYMENTS_API_URL = 'https://api.nowpayments.io/v1';
 
 
+const apiClient = axios.create({
+  baseURL: 'https://api.nowpayments.io/v1',
+  headers: {
+    'x-api-key': `${NOWPAYMENTS_API_KEY}`,
+  },
+});
 
-import dotenv from 'dotenv';
-dotenv.config();
-import express from 'express';
-import cors from 'cors';
-import { Configuration, OpenAIApi } from 'openai';
-import { body, validationResult } from 'express-validator';
-import rateLimit from 'express-rate-limit';
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
-import { createClient } from '@supabase/supabase-js';
-
-const coingeckoClient = new CoinGecko();
-
-// ...rest of the code remains the same
-
-const logFolderPath = './logs';
 
 if (!fs.existsSync(logFolderPath)) {
   fs.mkdirSync(logFolderPath, { recursive: true });
@@ -56,7 +45,7 @@ app.use(express.json());
 
 const limiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 1, // limit each IP to 1 request per minute
+  max: 5, // limit each IP to 5 requests per minute
   handler: (req, res) => {
     const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     const userAgent = req.headers['user-agent'];
@@ -256,8 +245,120 @@ res.status(200).json({ message: 'Wallet connected successfully' });
 });
 
 
+// Handle the transaction process securely
+
+app.post('/api/nowpayments/create-transaction', async (req, res) => {
+  const { currency, price, walletAddress } = req.body;
+
+  try {
+    const response = await axios.post(
+      `${NOWPAYMENTS_API_URL}/invoice`,
+      {
+        price_amount: price,
+        price_currency: currency,
+        pay_currency: currency,
+        order_id: 'your-unique-order-id', // Replace with your own order ID system
+        success_url: 'https://your-website.com/success', // Replace with your success URL
+        cancel_url: 'https://your-website.com/cancel', // Replace with your cancel URL
+        ipn_callback_url: 'https://your-website.com/ipn-callback', // Replace with your IPN callback URL
+      },
+      {
+        headers: {
+          'x-api-key': NOWPAYMENTS_API_KEY,
+        },
+      }
+    );
+
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error creating transaction with NOWPayments API:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
 
 
+// Add a new API route for creating a payment
+
+app.post('/api/nowpayments/create-payment', async (req, res) => {
+  const paymentDetails = req.body;
+
+  try {
+    const paymentResponse = await nowPaymentsAPI.createPayment(paymentDetails);
+    res.status(200).json(paymentResponse);
+  } catch (error) {
+    console.error('Error creating payment:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+// Fetch token prices from CoinGecko API
+async function fetchTokenPrices(symbols) {
+  const url = `https://api.coingecko.com/api/v3/simple/price?ids=${symbols.join(',')}&vs_currencies=usd`;
+
+  try {
+    const response = await axios.get(url);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching token prices:', error);
+    return null;
+  }
+}
+
+app.get('/api/coinList', async (req, res) => {
+  try {
+    const response = await axios.get('https://api.nowpayments.io/v1/currencies', {
+      headers: {
+        'x-api-key': NOWPAYMENTS_API_KEY,
+      },
+    });
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error('Error getting available currencies:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+app.get('/api/tokenPrices', async (req, res) => {
+  try {
+    // Get the list of available currencies
+    const coinListResponse = await axios.get('http://localhost:5000/api/coinList');
+    const coinList = coinListResponse.data.currencies;
+    
+    // Fetch token prices for available currencies
+    const tokenPrices = await fetchTokenPrices(coinList);
+    res.status(200).json(tokenPrices);
+  } catch (error) {
+    console.error('Error fetching token prices:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+app.post('/api/create-payment', async (req, res) => {
+  try {
+    const { price_amount, price_currency, pay_currency } = req.body;
+    console.log('Received parameters:', { price_amount, price_currency, pay_currency });
+    const response = await apiClient.post('/payment', {
+      price_amount,
+      price_currency,
+      pay_currency,
+    });
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error creating payment:', error);
+    res.status(500).json({ message: 'Error creating payment' });
+  }
+});
+
+app.get('/api/payment-status/:payment_id', async (req, res) => {
+  try {
+    const { payment_id } = req.params;
+    const response = await apiClient.get(`/payment/${payment_id}`);
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error getting payment status:', error);
+    res.status(500).json({ message: 'Error getting payment status' });
+  }
+});
 
 app.listen(port, () => {
 console.log(`Server running on port ${port}`);

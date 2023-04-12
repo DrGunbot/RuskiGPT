@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
+import CryptoSelectionModal from "./CryptoSelectionModal";
 
 const Container = styled.div`
   display: flex;
@@ -19,7 +20,8 @@ const ModalButton = styled.button`
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-size: 16px;
+  font-size: 24px;
+  font-weight: bold;
   margin: 4px 2px;
   cursor: pointer;
   border-radius: 8px;
@@ -36,6 +38,14 @@ const CloseButton = styled.span`
   font-weight: bold;
 `;
 
+const PayButton = styled(ModalButton)`
+  cursor: pointer;
+  font-size: 24px;
+  font-weight: bold;
+  background: green;
+  color: #fff;
+`;
+
 const letterVariants = {
   hidden: { opacity: 0, y: -50 },
   visible: { opacity: 1, y: 0, transition: { duration: 1 } },
@@ -44,10 +54,30 @@ const letterVariants = {
 
 const PurchaseTokens = () => {
   const [tokens, setTokens] = useState(0);
+  const [showCryptoSelectionModal, setShowCryptoSelectionModal] = useState(false);
   const tokenValue = 0.1;
+  //eslint-disable-next-line
+  const [selectedCrypto, setSelectedCrypto] = useState(null);
+
+  const handleSelectCrypto = (crypto) => {
+    setSelectedCrypto(crypto);
+    // Close the modal after selecting the crypto
+    closeCryptoSelectionModal();
+    // You can also make the payment request here or do anything else with the selected crypto
+  };
 
   const updateTokens = (amount) => {
     setTokens(amount);
+  };
+
+  const handlePayButtonClick = () => {
+    setShowCryptoSelectionModal(true);
+    setSelectedCrypto(null);
+  };
+  
+
+  const closeCryptoSelectionModal = () => {
+    setShowCryptoSelectionModal(false);
   };
 
   return (
@@ -87,7 +117,7 @@ const PurchaseTokens = () => {
           outline: 'none',
         }}
       />
-      <AnimatePresence>
+            <AnimatePresence>
         {tokens > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -115,7 +145,6 @@ const PurchaseTokens = () => {
                 padding: 20,
                 borderRadius: 10,
                 width: '400px',
-                border: '2px solid #4caf50',
                 border: '2px solid #4caf50',
             }}
           >
@@ -145,16 +174,13 @@ const PurchaseTokens = () => {
               />
             </div>
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
-              <ModalButton
-                style={{ background: "green", color: "#fff" }}
-                onClick={() => {
-                  // Implement payment logic here
-                }}
+              <PayButton
+                onClick={handlePayButtonClick}
               >
                 Pay
-              </ModalButton>
+              </PayButton>
               <ModalButton
-                style={{ background: "red", color: "#fff" }}
+                style={{ background: "red", color: "#fff", cursor: "pointer" }}
                 onClick={() => updateTokens(0)}
               >
                 Cancel
@@ -164,9 +190,15 @@ const PurchaseTokens = () => {
         </motion.div>
       )}
     </AnimatePresence>
-  </Container>
+    {showCryptoSelectionModal && (
+  <CryptoSelectionModal
+    onClose={closeCryptoSelectionModal}
+    onSelectCrypto={handleSelectCrypto}
+    tokenAmount={tokens}
+  />
+      )}
+    </Container>
 );
 };
 
 export default PurchaseTokens;
-
