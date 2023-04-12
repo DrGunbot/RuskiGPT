@@ -56,7 +56,15 @@ const PurchaseTokens = () => {
   const [tokens, setTokens] = useState(0);
   const [showCryptoSelectionModal, setShowCryptoSelectionModal] = useState(false);
   const tokenValue = 0.1;
+  //eslint-disable-next-line
   const [selectedCrypto, setSelectedCrypto] = useState(null);
+
+  const handleSelectCrypto = (crypto) => {
+    setSelectedCrypto(crypto);
+    // Close the modal after selecting the crypto
+    closeCryptoSelectionModal();
+    // You can also make the payment request here or do anything else with the selected crypto
+  };
 
   const updateTokens = (amount) => {
     setTokens(amount);
@@ -64,7 +72,9 @@ const PurchaseTokens = () => {
 
   const handlePayButtonClick = () => {
     setShowCryptoSelectionModal(true);
+    setSelectedCrypto(null);
   };
+  
 
   const closeCryptoSelectionModal = () => {
     setShowCryptoSelectionModal(false);
@@ -180,8 +190,14 @@ const PurchaseTokens = () => {
         </motion.div>
       )}
     </AnimatePresence>
-    {showCryptoSelectionModal && <CryptoSelectionModal onClose={closeCryptoSelectionModal} />}
-  </Container>
+    {showCryptoSelectionModal && (
+  <CryptoSelectionModal
+    onClose={closeCryptoSelectionModal}
+    onSelectCrypto={handleSelectCrypto}
+    tokenAmount={tokens}
+  />
+      )}
+    </Container>
 );
 };
 
