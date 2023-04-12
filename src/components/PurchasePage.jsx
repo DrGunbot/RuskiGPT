@@ -74,7 +74,6 @@ const PurchaseTokens = () => {
     setShowCryptoSelectionModal(true);
     setSelectedCrypto(null);
   };
-  
 
   const closeCryptoSelectionModal = () => {
     setShowCryptoSelectionModal(false);
@@ -117,7 +116,7 @@ const PurchaseTokens = () => {
           outline: 'none',
         }}
       />
-            <AnimatePresence>
+      <AnimatePresence>
         {tokens > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -146,59 +145,59 @@ const PurchaseTokens = () => {
                 borderRadius: 10,
                 width: '400px',
                 border: '2px solid #4caf50',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2>Payment</h2>
-              <CloseButton onClick={() => updateTokens(0)}>&times;</CloseButton>
-            </div>
-            <p>
-              You are purchasing {tokens} messages for ${(tokens * tokenValue).toFixed(2)}
-            </p>
-            <div>
-              <input
-                type="range"
-                min="100"
-                max="5000"
-                step="100"
-                value={tokens}
-                onChange={(e) => updateTokens(e.target.value)}
-                style={{
-                  width: '100%',
-                  appearance: 'none',
-                  height: '15px',
-                  borderRadius: '5px',
-                  background: '#4caf50',
-                  outline: 'none',
-                }}
-              />
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
-              <PayButton
-                onClick={handlePayButtonClick}
-              >
-                Pay
-              </PayButton>
-              <ModalButton
-                style={{ background: "red", color: "#fff", cursor: "pointer" }}
-                onClick={() => updateTokens(0)}
-              >
-                Cancel
-              </ModalButton>
-            </div>
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h2>Payment</h2>
+                <CloseButton onClick={() => updateTokens(0)}>&times;</CloseButton>
+              </div>
+              <p>
+                You are purchasing {tokens} messages for ${(tokens * tokenValue).toFixed(2)}
+              </p>
+              <div>
+                <input
+                  type="range"
+                  min="100"
+                  max="5000"
+                  step="100"
+                  value={tokens}
+                  onChange={(e) => updateTokens(e.target.value)}
+                  style={{
+                    width: '100%',
+                    appearance: 'none',
+                    height: '15px',
+                    borderRadius: '5px',
+                    background: '#4caf50',
+                    outline: 'none',
+                  }}
+                />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+                <PayButton
+                  onClick={handlePayButtonClick}
+                >
+                  Pay
+                </PayButton>
+                <ModalButton
+                  style={{ background: "red", color: "#fff", cursor: "pointer" }}
+                  onClick={() => updateTokens(0)}
+                >
+                  Cancel
+                </ModalButton>
+              </div>
+            </motion.div>
           </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-    {showCryptoSelectionModal && (
-  <CryptoSelectionModal
-    onClose={closeCryptoSelectionModal}
-    onSelectCrypto={handleSelectCrypto}
-    tokenAmount={tokens}
-  />
+        )}
+      </AnimatePresence>
+      {showCryptoSelectionModal && (
+        <CryptoSelectionModal
+          onClose={closeCryptoSelectionModal}
+          onSelectCrypto={handleSelectCrypto}
+          tokenAmount={tokens}
+        />
       )}
     </Container>
-);
+  );
 };
 
 export default PurchaseTokens;

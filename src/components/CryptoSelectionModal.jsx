@@ -3,6 +3,8 @@ import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import styled from '@emotion/styled';
 import axios from 'axios';
 
+
+
 const apiClient = axios.create({
     baseURL: 'http://localhost:5000',
 });

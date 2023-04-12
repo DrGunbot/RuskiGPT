@@ -17,6 +17,9 @@ import { BsFillChatDotsFill } from 'react-icons/bs';
 import { IoClose, IoChevronDown, IoChevronUp, IoExpand } from 'react-icons/io5';
 import { AnimatePresence } from 'framer-motion';
 import { getAccount } from "@wagmi/core";
+import ReactMarkdown from 'react-markdown';
+import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
 
 
@@ -116,11 +119,28 @@ const Chatbot = ({ ethereumClient }) => {
     }
   };
 
+  const CodeBlock = ({ node, inline, className, children, ...props }) => {
+    const match = /language-(\w+)/.exec(className || '');
+    return !inline && match ? (
+      <SyntaxHighlighter style={docco} language={match[1]} PreTag="div" {...props}>
+        {String(children).replace(/\n$/, '')}
+      </SyntaxHighlighter>
+    ) : (
+      <code className={className} {...props}>
+        {children}
+      </code>
+    );
+  };
+  
+  
   const Message = ({ message }) => (
     <MessageWrapper user={message.role === 'user'}>
-      <MessageContent user={message.role === 'user'}>{message.content}</MessageContent>
+      <MessageContent user={message.role === 'user'}>
+      <ReactMarkdown renderers={{ code: CodeBlock }} children={message.content} />
+      </MessageContent>
     </MessageWrapper>
   );
+  
 
   return (
     <AnimatePresence>
