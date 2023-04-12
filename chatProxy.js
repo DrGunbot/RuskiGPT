@@ -9,6 +9,7 @@ const path = require('path');
 const os = require('os');
 const { createClient } = require('@supabase/supabase-js');
 const logFolderPath = path.join(__dirname, 'logs');
+const axios = require('axios');
 
 
 if (!fs.existsSync(logFolderPath)) {
@@ -34,7 +35,7 @@ app.use(express.json());
 
 const limiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 1, // limit each IP to 1 request per minute
+  max: 5, // limit each IP to 5 requests per minute
   handler: (req, res) => {
     const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     const userAgent = req.headers['user-agent'];
@@ -231,6 +232,127 @@ if (!existingUser) {
 }
 
 res.status(200).json({ message: 'Wallet connected successfully' });
+});
+
+const NOWPAYMENTS_API_KEY = process.env.NOWPAYMENTS_API_KEY;
+const NOWPAYMENTS_API_URL = 'https://api.nowpayments.io/v1';
+
+app.get('/api/nowpayments/currencies', async (req, res) => {
+  try {
+    const response = await axios.get(`${NOWPAYMENTS_API_URL}/currencies`, {
+      headers: {
+        'x-api-key': NOWPAYMENTS_API_KEY,
+      },
+    });
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error fetching cryptocurrencies from NOWPayments API:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+// Handle the transaction process securely
+app.post('/api/nowpayments/create-transaction', async (req, res) => {
+  const { currency, price, walletAddress } = req.body;
+
+  try {
+    const response = await axios.post(
+      `${NOWPAYMENTS_API_URL}/invoice`,
+      {
+        price_amount: price,
+        price_currency: currency,
+        pay_currency: currency,
+        order_id: 'your-unique-order-id', // Replace with your own order ID system
+        success_url: 'https://your-website.com/success', // Replace with your success URL
+        cancel_url: 'https://your-website.com/cancel', // Replace with your cancel URL
+        ipn_callback_url: 'https://your-website.com/ipn-callback', // Replace with your IPN callback URL
+      },
+      {
+        headers: {
+          'x-api-key': NOWPAYMENTS_API_KEY,
+        },
+      }
+    );
+
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error creating transaction with NOWPayments API:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+
+// Utility functions for interacting with the NOWPayments API
+const nowPaymentsAPI = {
+  getAvailableCurrencies: async () => {
+    try {
+      const response = await axios.get(`https://api.nowpayments.io/v1/currencies`, {
+        headers: {
+          'x-api-key': process.env.REACT_APP_NOWPAYMENTS_API_KEY,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching available currencies:', error);
+      throw error;
+    }
+  },
+
+  createPayment: async (paymentDetails) => {
+    try {
+      const response = await axios.post(
+        `https://api.nowpayments.io/v1/invoice`,
+        paymentDetails,
+        {
+          headers: {
+            'x-api-key': process.env.REACT_APP_NOWPAYMENTS_API_KEY,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error creating payment:', error);
+      throw error;
+    }
+  },
+
+  // Add more utility functions as needed
+};
+
+// Add a new API route for getting available cryptocurrencies
+app.get('/api/nowpayments/available-currencies', async (req, res) => {
+  try {
+    const currencies = await nowPaymentsAPI.getAvailableCurrencies();
+    res.status(200).json(currencies);
+  } catch (error) {
+    console.error('Error getting available currencies:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+// Add a new API route for creating a payment
+app.post('/api/nowpayments/create-payment', async (req, res) => {
+  const paymentDetails = req.body;
+
+  try {
+    const paymentResponse = await nowPaymentsAPI.createPayment(paymentDetails);
+    res.status(200).json(paymentResponse);
+  } catch (error) {
+    console.error('Error creating payment:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+// Add a new API route for getting available cryptocurrencies from the NOWPayments API
+
+app.get('/api/nowpayments/get-cryptocurrencies', async (req, res) => {
+  try {
+    const currencies = await nowPaymentsAPI.getAvailableCurrencies();
+    res.status(200).json(currencies);
+  } catch (error) {
+    console.error('Error getting available currencies:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
 });
 
 
