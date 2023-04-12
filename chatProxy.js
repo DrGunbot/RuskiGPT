@@ -1,37 +1,15 @@
-// require('dotenv').config();
-// const express = require('express');
-// const cors = require('cors');
-// const { Configuration, OpenAIApi } = require('openai');
-// const { body, validationResult } = require('express-validator');
-// const rateLimit = require('express-rate-limit');
-// const fs = require('fs');
-// const path = require('path');
-// const os = require('os');
-// const { createClient } = require('@supabase/supabase-js');
-// const logFolderPath = path.join(__dirname, 'logs');
-// const axios = require('axios');
-// const { ethers } = require('ethers');
-// const { getProvider } = require('@wagmi/core');
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const { Configuration, OpenAIApi } = require('openai');
+const { body, validationResult } = require('express-validator');
+const rateLimit = require('express-rate-limit');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+const { createClient } = require('@supabase/supabase-js');
+const logFolderPath = path.join(__dirname, 'logs');
 
-
-
-import dotenv from 'dotenv';
-dotenv.config();
-import express from 'express';
-import cors from 'cors';
-import { Configuration, OpenAIApi } from 'openai';
-import { body, validationResult } from 'express-validator';
-import rateLimit from 'express-rate-limit';
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
-import { createClient } from '@supabase/supabase-js';
-
-const coingeckoClient = new CoinGecko();
-
-// ...rest of the code remains the same
-
-const logFolderPath = './logs';
 
 if (!fs.existsSync(logFolderPath)) {
   fs.mkdirSync(logFolderPath, { recursive: true });
@@ -254,9 +232,6 @@ if (!existingUser) {
 
 res.status(200).json({ message: 'Wallet connected successfully' });
 });
-
-
-
 
 
 app.listen(port, () => {

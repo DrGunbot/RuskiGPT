@@ -1,80 +1,21 @@
-    connect
-    disconnect
-    fetchBalance
-    fetchBlockNumber
-    fetchEnsAddress
-    fetchEnsAvatar
-    fetchEnsName
-    fetchEnsResolver
-    fetchFeeData
-    fetchSigner
-    fetchTransaction
-    fetchToken
-    getAccount
-    getContract
-    getNetwork
-    getProvider
-    getWebSocketProvider
-    multicall
-    prepareSendTransaction
-    prepareWriteContract
-    readContract
-    readContracts
-    sendTransaction
-    signMessage
-    signTypedData
-    switchNetwork
-    waitForTransaction
-    watchAccount
-    watchBlockNumber
-    watchContractEvent
-    watchMulticall
-    watchNetwork
-    watchPendingTransactions
-    watchProvider
-    watchReadContract
-    watchReadContracts
-    watchSigner
-    watchWebSocketProvider
-    writeContract
-
-Constants
-
-        ABIs
-    Module Types
-
-On This Page
-
-    Usage
-    Return Value
-    Configuration
-    chainId (optional)
-    connector
-
-Question? Give us feedback →
-Edit this page on GitHub →
-
-    Core
-
-Actions
-
-    connect
-
-connect
-
-Action for connecting to account with connectors.
-
-import { connect } from '@wagmi/core'
-
-Usage
-
-import { connect } from '@wagmi/core'
-import { InjectedConnector } from '@wagmi/core/connectors/injected'
- 
-const result = await connect({
-  connector: new InjectedConnector(),
 Rate limit exceeded: ::1
 Machine Info: Darwin 20.6.0 (x64)
 IP Address: ::1
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36
 Wallet ID: 0xFc1688A4410Ac32472ac6d72F39eD9f8A1d7a650
+IP Address: ::1
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36
+Machine Info: Darwin 20.6.0 (x64)
+Rate limit exceeded: ::1
+Wallet ID: undefined
+Rate limit exceeded: ::1
+Machine Info: Darwin 20.6.0 (x64)
+Wallet ID: 0xFc1688A4410Ac32472ac6d72F39eD9f8A1d7a650
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36
+IP Address: ::1
+Error communicating with OpenAI: Error: Request failed with status code 401
+Rate limit exceeded: ::1
+IP Address: ::1
+Wallet ID: 0xFc1688A4410Ac32472ac6d72F39eD9f8A1d7a650
+Machine Info: Darwin 20.6.0 (x64)
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36

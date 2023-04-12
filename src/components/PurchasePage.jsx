@@ -116,7 +116,6 @@ const PurchaseTokens = () => {
                 borderRadius: 10,
                 width: '400px',
                 border: '2px solid #4caf50',
-                border: '2px solid #4caf50',
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -148,7 +147,7 @@ const PurchaseTokens = () => {
               <ModalButton
                 style={{ background: "green", color: "#fff" }}
                 onClick={() => {
-                  // Implement payment logic here
+                  // payment logic here
                 }}
               >
                 Pay
