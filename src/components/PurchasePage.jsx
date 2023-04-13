@@ -148,11 +148,11 @@ const PurchaseTokens = () => {
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h2>Payment</h2>
+                <h2>Slide me to select the amount of messages you'd like to buy</h2>
                 <CloseButton onClick={() => updateTokens(0)}>&times;</CloseButton>
               </div>
               <p>
-                You are purchasing {tokens} messages for ${(tokens * tokenValue).toFixed(2)}
+                Click the pay button to purchase {tokens} messages for ${(tokens * tokenValue).toFixed(2)}
               </p>
               <div>
                 <input

@@ -33,7 +33,6 @@ const CryptoSelectionModal = ({
 }) => {
   const [cryptos, setCryptos] = useState([]);
   const [selectedCrypto, setSelectedCrypto] = useState(null);
-  const [priceAmount, setPriceAmount] = useState(0);
   const [coinPrices, setCoinPrices] = useState({});
   const [tokenPrice, setTokenPrice] = useState(0);
   const [paymentDetails, setPaymentDetails] = useState(null);
@@ -42,7 +41,7 @@ const CryptoSelectionModal = ({
   const [stateList, setStateList] = useState([
     { label: 'waiting', active: false },
     { label: 'confirming', active: false },
-    { label: 'confirmed', active: false },
+    { label: 'sending', active: false },
     { label: 'finished', active: false },
   ]);
 
@@ -158,12 +157,9 @@ const CryptoSelectionModal = ({
       (crypto) => crypto.symbol === selected
     );
     setSelectedCrypto(selectedCryptoObj);
-
-    // Calculate price_amount
-    const coinPrice = coinPrices[selected];
-    const priceAmount = tokenAmount * tokenPrice / coinPrice;
-    setPriceAmount(priceAmount.toFixed(2));
   };
+
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const handleConfirmSelection = async () => {
     if (selectedCrypto) {
@@ -225,7 +221,10 @@ const CryptoSelectionModal = ({
               //Call creditTokens function
               await creditTokens(tokenAmount);
 
+              // Show confetti animation for 3 seconds before closing the modal
+              setShowConfetti(true);
               setTimeout(() => {
+                setShowConfetti(false);
                 onSelectCrypto(selectedCrypto);
               }, 3000);
             }
@@ -291,7 +290,7 @@ const CryptoSelectionModal = ({
                   alignItems: 'center',
                 }}
               >
-                <h2>Select Cryptocurrency</h2>
+                <h2>What coin do you want to pay with?</h2>
                 <CloseButton onClick={onClose}>&times;</CloseButton>
               </div>
               <CryptoDropdown onChange={handleSelectCrypto}>
@@ -303,7 +302,6 @@ const CryptoSelectionModal = ({
               </CryptoDropdown>
               <div>
                 <p>Current exchange rate: ...</p>
-                <p>Price Amount: {priceAmount}</p>
                 <p>Additional information: ...</p>
                 <div
                   style={{
@@ -379,9 +377,7 @@ const CryptoSelectionModal = ({
               </StateItem>
             ))}
           </StateList>
-          {stateList.some((stateItem) => stateItem.label === 'finished' && stateItem.active) && (
-            <Confetti numberOfPieces={200} />
-          )}
+          {showConfetti && <Confetti numberOfPieces={200} />}
         </ModalContainer>
       </ModalOverlay>
     </AnimatePresence>
