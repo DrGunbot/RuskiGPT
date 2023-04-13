@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
-import CryptoSelectionModal from "./CryptoSelectionModal";
+import CryptoSelectionModal from './CryptoSelectionModal';
+import { getAccount } from '@wagmi/core';
 
 const Container = styled.div`
   display: flex;
@@ -56,14 +57,13 @@ const PurchaseTokens = () => {
   const [tokens, setTokens] = useState(0);
   const [showCryptoSelectionModal, setShowCryptoSelectionModal] = useState(false);
   const tokenValue = 0.1;
-  //eslint-disable-next-line
   const [selectedCrypto, setSelectedCrypto] = useState(null);
+
+  const ethereumClient = getAccount();
 
   const handleSelectCrypto = (crypto) => {
     setSelectedCrypto(crypto);
-    // Close the modal after selecting the crypto
     closeCryptoSelectionModal();
-    // You can also make the payment request here or do anything else with the selected crypto
   };
 
   const updateTokens = (amount) => {
@@ -194,6 +194,7 @@ const PurchaseTokens = () => {
           onClose={closeCryptoSelectionModal}
           onSelectCrypto={handleSelectCrypto}
           tokenAmount={tokens}
+          ethereumClient={ethereumClient}
         />
       )}
     </Container>

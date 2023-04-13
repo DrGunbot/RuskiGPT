@@ -13,12 +13,14 @@ const axios = require('axios');
 const NOWPAYMENTS_API_KEY = process.env.REACT_APP_NOWPAYMENTS_API_KEY;
 const NOWPAYMENTS_API_URL = 'https://api.nowpayments.io/v1';
 
+
 const apiClient = axios.create({
   baseURL: 'https://api.nowpayments.io/v1',
   headers: {
     'x-api-key': `${NOWPAYMENTS_API_KEY}`,
   },
 });
+
 
 if (!fs.existsSync(logFolderPath)) {
   fs.mkdirSync(logFolderPath, { recursive: true });
@@ -51,6 +53,7 @@ const limiter = rateLimit({
     const walletID = req.body.connectedAccountAddress;
     const message = `If you continue to try and spam me, ${walletID} will lose all credits and be added to the blacklist. You are on a cooldown period and have been warned.`;
     
+
     console.warn(`Rate limit exceeded: ${ip}`);
     logToFile(`Rate limit exceeded: ${ip}\n`);
 
@@ -143,6 +146,23 @@ app.use((err, req, res, next) => {
   const allowedOrigins = ['https://wiki.ninj.ai', 'http://localhost:5000'];
   
   app.use(cors({ origin: allowedOrigins }));
+
+  app.post(
+    '/api/purchaseTokens',
+    body('connectedAccountAddress').isString().withMessage('connectedAccountAddress must be a string'),
+    body('token').isString().withMessage('token must be a string'),
+    body('amount').isNumeric().withMessage('amount must be a number'),
+    async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+  
+      const { connectedAccountAddress, token, amount } = req.body;
+      creditUserTokens(connectedAccountAddress, token, amount);
+      res.status(200).send({ message: `Credited ${amount} ${token} to ${connectedAccountAddress}` });
+    }
+  );
   
   app.post('/api/chat',
     body('messages').isArray().withMessage('messages must be an array'),
@@ -274,8 +294,6 @@ app.post('/api/nowpayments/create-transaction', async (req, res) => {
 });
 
 
-
-
 app.get('/api/coinList', async (req, res) => {
   try {
     const response = await axios.get('https://api.nowpayments.io/v1/currencies', {
@@ -331,6 +349,104 @@ app.get('/api/payment-status/:payment_id', async (req, res) => {
     res.status(500).json({ message: 'Error getting payment status' });
   }
 });
+
+// backend payments API
+
+app.post('/credit-tokens', async (req, res) => {
+  const { walletAddress, tokensToCredit } = req.body;
+
+  const { data: user_tokens, error } = await supabase
+    .from('user_tokens')
+    .select('*')
+    .eq('wallet_address', walletAddress);
+
+  if (error) {
+    console.error('Error fetching user tokens:', error);
+    res.status(500).send('Error fetching user tokens');
+    return;
+  }
+
+  if (!user_tokens || user_tokens.length === 0) {
+    console.error('No user token entry found for the connected wallet address');
+    res.status(400).send('No user token entry found for the connected wallet address');
+    return;
+  }
+
+  const userToken = user_tokens[0];
+
+  const updatedTokensOwned = (userToken.tokens_owned || 0) + tokensToCredit;
+  const updatedTokensPurchased = (userToken.tokens_purchased || 0) + tokensToCredit;
+
+  const { error: updateError } = await supabase
+    .from('user_tokens')
+    .update({ tokens_owned: updatedTokensOwned, tokens_purchased: updatedTokensPurchased })
+    .eq('wallet_address', walletAddress);
+
+  if (updateError) {
+    console.error('Error updating user tokens:', updateError);
+    res.status(500).send('Error updating user tokens');
+    return;
+  }
+
+  res.send(`Credited ${tokensToCredit} tokens to wallet address ${walletAddress}`);
+});
+
+
+// app.post('/api/purchase',
+//   body('walletAddress').isString().withMessage('walletAddress must be a string'),
+//   body('amountSpent').isNumeric().withMessage('amountSpent must be a numeric value'),
+
+  
+//   async (req, res) => {
+//     console.log(walletAddress, amountSpent)
+//     const errors = validationResult(req);
+//     if (!errors.isEmpty()) {
+//       return res.status(400).json({ errors: errors.array() });
+//     }
+
+//     const { walletAddress, amountSpent } = req.body;
+
+//     // Calculate the newTokenAmount based on the amount spent
+//     const newTokenAmount = Math.floor(amountSpent * 10);
+
+//     try {
+//       const { data: user, error } = await supabase
+//         .from('user_tokens')
+//         .select('*')
+//         .eq('wallet_address', walletAddress)
+//         .single();
+
+//       if (error || !user) {
+//         console.error('Error fetching user from the database:', error);
+//         return res.status(500).json({ message: 'Internal Server Error' });
+//       }
+
+//       const updatedTokensOwned = user.tokens_owned + newTokenAmount;
+//       const updatedTokensPurchased = user.tokens_purchased + newTokenAmount;
+//       const updatedTokensRemaining = user.tokens_remaining + newTokenAmount;
+
+//       const { data: updatedUser, error: updateError } = await supabase
+//         .from('user_tokens')
+//         .update({
+//           tokens_owned: updatedTokensOwned,
+//           tokens_purchased: updatedTokensPurchased,
+//           tokens_remaining: updatedTokensRemaining,
+//         })
+//         .eq('wallet_address', walletAddress);
+
+//       if (updateError) {
+//         console.error('Error updating user tokens in the database:', updateError);
+//         return res.status(500).json({ message: 'Internal Server Error' });
+//       }
+
+//       res.status(200).json({ message: 'Tokens purchased successfully' });
+//     } catch (error) {
+//       console.error('Error processing token purchase:', error);
+//       res.status(500).json({ message: 'Internal Server Error' });
+//     }
+//   }
+// );
+
 
 app.listen(port, () => {
 console.log(`Server running on port ${port}`);
