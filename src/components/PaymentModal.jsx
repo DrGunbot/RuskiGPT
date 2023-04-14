@@ -17,6 +17,7 @@ import {
   CryptoDropdown,
   ConfirmButton,
 } from '../assets/styling/cryptoSelectionModal/cryptoSelectionModal';
+import ReactSelect from 'react-select';
 
 const supabaseUrl = 'https://jxyktcgpiwlirnfixrrd.supabase.co';
 const supabaseKey = process.env.REACT_APP_SUPABASE_API;
@@ -83,6 +84,31 @@ const PaymentModal = ({
 
     fetchCoinListAndPrices();
   }, []);
+
+  const customStyles = {
+    menuPortal: (provided) => ({
+      ...provided,
+      zIndex: 9999,
+    }),
+    menu: (provided) => ({
+      ...provided,
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      overflowY: 'scroll',
+    }),
+    option: (provided) => ({
+      ...provided,
+      color: 'white',
+      background: 'transparent',
+      '&:hover': {
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      },
+    }),
+  };
 
   const creditTokens = async (tokensToCredit) => {
     if (!walletAddress) {
@@ -283,14 +309,16 @@ const PaymentModal = ({
                 <h2>What coin do you want to pay with?</h2>
                 <CloseButton onClick={onClose}>&times;</CloseButton>
               </div>
-              <CryptoDropdown onChange={handleSelectCrypto}>
-                <option value="">Select a coin</option>
-                {cryptos.map((crypto, index) => (
-                  <option key={index} value={crypto.symbol}>
-                    {crypto.name}
-                  </option>
-                ))}
-              </CryptoDropdown>
+              <ReactSelect
+                styles={customStyles}
+                menuPortalTarget={document.body}
+                options={cryptos.map((crypto) => ({
+                  value: crypto.symbol,
+                  label: crypto.name,
+                }))}
+                onChange={handleSelectCrypto}
+                placeholder="Select a coin"
+              />
               <div>
                 <p>Current exchange rate: ...</p>
                 <p>Additional information: ...</p>
@@ -336,55 +364,54 @@ const PaymentModal = ({
                     justifyContent: 'center',
                   }}
                 >
-                  <Spinner />
-                  <p style={{ marginTop: '10px', marginBottom: '10px' }}>
-                    Grabbing payment details...
-                  </p>
-                </div>
-              ) : (
-                <>
-                  <p>Send the payment to the following address:</p>
-                  <p>
-                    <WalletAddress
-                      ref={walletAddressRef}
-                      onClick={handleCopyWalletAddress}
-                    >
-                      {paymentDetails.pay_address}
-                    </WalletAddress>
-                  </p>
-                  <p>Amount to send:</p>
-                  <p>
-                    {paymentDetails.pay_amount}{' '}
-                    {paymentDetails.pay_currency.toUpperCase()}
-                  </p>
-                  <p>Payment ID:</p>
-                  <p>{paymentDetails.payment_id}</p>
-                  <p>Valid until:</p>
-                  <p>{paymentDetails.valid_until}</p>
-                </>
-              )}
+                                  <Spinner />
+                <p style={{ marginTop: '10px', marginBottom: '10px' }}>
+                  Grabbing payment details...
+                </p>
+              </div>
+            ) : (
+              <>
+                <p>Send the payment to the following address:</p>
+                <p>
+                  <WalletAddress
+                    ref={walletAddressRef}
+                    onClick={handleCopyWalletAddress}
+                  >
+                    {paymentDetails.pay_address}
+                  </WalletAddress>
+                </p>
+                <p>Amount to send:</p>
+                <p>
+                  {paymentDetails.pay_amount}{' '}
+                  {paymentDetails.pay_currency.toUpperCase()}
+                </p>
+                <p>Payment ID:</p>
+                <p>{paymentDetails.payment_id}</p>
+                <p>Valid until:</p>
+                <p>{paymentDetails.valid_until}</p>
+              </>
+            )}
 
-              {paymentStatus === 'finished' && (
-                <div>
-                  <h3>Token deposit:</h3>
-                  <CountUp start={0} end={tokenAmount} duration={5} />
-                </div>
-              )}
-            </PaymentDetails>
-
-          )}
-          <StateList>
-            {stateList.map((stateItem, index) => (
-              <StateItem key={index} active={stateItem.active}>
-                {stateItem.label}
-              </StateItem>
-            ))}
-          </StateList>
-          {showConfetti && <Confetti numberOfPieces={200} />}
-        </ModalContainer>
-      </ModalOverlay>
-    </AnimatePresence>
-  );
+            {paymentStatus === 'finished' && (
+              <div>
+                <h3>Token deposit:</h3>
+                <CountUp start={0} end={tokenAmount} duration={5} />
+              </div>
+            )}
+          </PaymentDetails>
+        )}
+        <StateList>
+          {stateList.map((stateItem, index) => (
+            <StateItem key={index} active={stateItem.active}>
+              {stateItem.label}
+            </StateItem>
+          ))}
+        </StateList>
+        {showConfetti && <Confetti numberOfPieces={200} />}
+      </ModalContainer>
+    </ModalOverlay>
+  </AnimatePresence>
+);
 };
 
 export default PaymentModal;

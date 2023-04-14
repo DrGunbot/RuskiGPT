@@ -109,7 +109,14 @@ export const CryptoDropdown = styled.select`
   font-size: 1.1rem;
   color: #4caf50;
   background: white;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
 `;
+
 
 export const ConfirmButton = styled(motion.button)`
   position: absolute;
