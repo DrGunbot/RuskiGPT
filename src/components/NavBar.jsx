@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Nav, NavTitle, NavLinks, NavItem, NavLinkStyle, Hamburger, HamburgerLine } from '../assets/styling/navbar/NavBar.styles';
+import { Nav, NavTitle, NavLinks, NavItem, NavLinkStyle} from '../assets/styling/navbar/NavBar.styles';
 import { Web3Button } from '@web3modal/react';
 import { Web3Modal } from '@web3modal/react';
-import { menuVariants, navTitleVariants, navItemVariants, hamburgerLineVariants } from '../assets/animation/navbar/NavBar.variants';
+import { menuVariants, navTitleVariants, navItemVariants } from '../assets/animation/navbar/NavBar.variants';
 import { AnimatePresence } from 'framer-motion';
+import openAIImage from '../assets/images/homepage/openAI.png';
 
 const NavBar = ({ projectId, ethereumClient }) => {
   const [isopen, setisopen] = useState(false);
@@ -71,7 +72,7 @@ const NavBar = ({ projectId, ethereumClient }) => {
             </NavItem>
           </NavLinks>
         )}
-     </AnimatePresence>
+      </AnimatePresence>
       <Web3Modal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -83,24 +84,18 @@ const NavBar = ({ projectId, ethereumClient }) => {
           '--w3m-background-color': '#202121',
         }}
       />
-      <Hamburger
+      <img
+        src={openAIImage}
         onClick={handleHamburgerClick}
         initial={false}
         animate={isopen ? "open" : "closed"}
-      >
-        <HamburgerLine
-          variants={hamburgerLineVariants}
-          isopen={isopen ? "true" : "false"}
-        />
-        <HamburgerLine
-          variants={hamburgerLineVariants}
-          isopen={isopen ? "true" : "false"}
-        />
-        <HamburgerLine
-          variants={hamburgerLineVariants}
-          isopen={isopen ? "true" : "false"}
-        />
-      </Hamburger>
+        alt="OpenAI Logo"
+        style={{
+          cursor: 'pointer',
+          width: '40px',
+          height: '40px',
+        }}
+      />
     </Nav>
   );
 };
