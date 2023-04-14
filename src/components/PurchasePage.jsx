@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
-import CryptoSelectionModal from './CryptoSelectionModal';
+import PaymentModal from './PaymentModal';
 import { getAccount } from '@wagmi/core';
 
 const Container = styled.div`
@@ -55,15 +55,17 @@ const letterVariants = {
 
 const PurchaseTokens = () => {
   const [tokens, setTokens] = useState(0);
-  const [showCryptoSelectionModal, setShowCryptoSelectionModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const tokenValue = 0.1;
+  // eslint-disable-next-line
   const [selectedCrypto, setSelectedCrypto] = useState(null);
+
 
   const ethereumClient = getAccount();
 
   const handleSelectCrypto = (crypto) => {
     setSelectedCrypto(crypto);
-    closeCryptoSelectionModal();
+    closePaymentModal();
   };
 
   const updateTokens = (amount) => {
@@ -71,12 +73,12 @@ const PurchaseTokens = () => {
   };
 
   const handlePayButtonClick = () => {
-    setShowCryptoSelectionModal(true);
+    setShowPaymentModal(true);
     setSelectedCrypto(null);
   };
 
-  const closeCryptoSelectionModal = () => {
-    setShowCryptoSelectionModal(false);
+  const closePaymentModal = () => {
+    setShowPaymentModal(false);
   };
 
   return (
@@ -189,9 +191,9 @@ const PurchaseTokens = () => {
           </motion.div>
         )}
       </AnimatePresence>
-      {showCryptoSelectionModal && (
-        <CryptoSelectionModal
-          onClose={closeCryptoSelectionModal}
+      {showPaymentModal && (
+        <PaymentModal
+          onClose={closePaymentModal}
           onSelectCrypto={handleSelectCrypto}
           tokenAmount={tokens}
           ethereumClient={ethereumClient}

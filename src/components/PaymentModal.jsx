@@ -4,6 +4,7 @@ import axios from 'axios';
 import Confetti from 'react-confetti';
 import { getAccount } from '@wagmi/core';
 import { createClient } from '@supabase/supabase-js';
+import CountUp from 'react-countup';
 import {
   ModalContainer,
   ModalOverlay,
@@ -25,7 +26,7 @@ const apiClient = axios.create({
   baseURL: 'http://localhost:5000',
 });
 
-const CryptoSelectionModal = ({
+const PaymentModal = ({
   onClose,
   onSelectCrypto,
   tokenAmount,
@@ -33,8 +34,6 @@ const CryptoSelectionModal = ({
 }) => {
   const [cryptos, setCryptos] = useState([]);
   const [selectedCrypto, setSelectedCrypto] = useState(null);
-  const [coinPrices, setCoinPrices] = useState({});
-  const [tokenPrice, setTokenPrice] = useState(0);
   const [paymentDetails, setPaymentDetails] = useState(null);
   const [isFetchingPaymentInfo, setIsFetchingPaymentInfo] = useState(false);
   const walletAddressRef = useRef(null);
@@ -74,12 +73,11 @@ const CryptoSelectionModal = ({
           a.name.localeCompare(b.name)
         );
         setCryptos(sortedCryptoList);
-
-        const tokenPricesResponse = await apiClient.get('/api/tokenPrices');
-        setCoinPrices(tokenPricesResponse.data);
-        setTokenPrice(tokenPricesResponse.data[cryptoList[0].symbol]);
       } catch (error) {
-        console.error('Error fetching cryptocurrencies and token prices:', error);
+        console.error(
+          'Error fetching cryptocurrencies and token prices:',
+          error
+        );
       }
     };
 
@@ -92,29 +90,29 @@ const CryptoSelectionModal = ({
       return;
     }
 
-    const { data: user_tokens, error } = await supabase
+    const { data: user_tokens } = await supabase
       .from('user_tokens')
       .select('*')
       .eq('wallet_address', walletAddress);
 
-    if (error) {
-      console.error('Error fetching user tokens:', error);
-      return;
-    }
+
 
     if (!user_tokens || user_tokens.length === 0) {
-      console.error('No user token entry found for the connected wallet address');
+      console.error(
+        'No user token entry found for the connected wallet address'
+      );
       return;
     }
 
     const userToken = user_tokens[0];
 
     const updatedTokensOwned = (userToken.tokens_owned || 0) + tokensToCredit;
-    const updatedTokensPurchased = (userToken.tokens_purchased || 0) + tokensToCredit;
 
     const { error: updateError } = await supabase
       .from('user_tokens')
-      .update({ tokens_owned: updatedTokensOwned, tokens_purchased: updatedTokensPurchased })
+      .update({
+        tokens_owned: updatedTokensOwned,
+      })
       .eq('wallet_address', walletAddress);
 
     if (updateError) {
@@ -122,44 +120,25 @@ const CryptoSelectionModal = ({
       return;
     }
 
-    console.log(`Credited ${tokensToCredit} tokens to wallet address ${walletAddress}`);
-  };
-
-  const handleTokenPurchase = async (walletAddress, amountSpent) => {
-    try {
-      // Call the /api/purchase endpoint to update the user's tokens
-      const response = await apiClient.post('/api/purchase', {
-        walletAddress,
-        amountSpent,
-      });
-
-      if (response.status === 200) {
-        // Animate the process of adding the user's tokens
-        setStateList((prevState) =>
-          prevState.map((stateItem) =>
-            stateItem.label === 'finished'
-              ? { label: stateItem.label, active: true }
-              : stateItem
-          )
-        );
-        console.log(response.data.message);
-      } else {
-        console.error('Error updating tokens:', response.data);
-      }
-    } catch (error) {
-      console.error('Error updating tokens:', error);
-    }
+    console.log(
+      `Credited ${tokensToCredit} tokens to wallet address ${walletAddress}`
+    );
   };
 
   const handleSelectCrypto = (e) => {
     const selected = e.target.value;
-    const selectedCryptoObj = cryptos.find(
-      (crypto) => crypto.symbol === selected
-    );
-    setSelectedCrypto(selectedCryptoObj);
+    if (selected === '') {
+      setSelectedCrypto(null);
+    } else {
+      const selectedCryptoObj = cryptos.find(
+        (crypto) => crypto.symbol === selected
+      );
+      setSelectedCrypto(selectedCryptoObj);
+    }
   };
 
   const [showConfetti, setShowConfetti] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState(null);
 
   const handleConfirmSelection = async () => {
     if (selectedCrypto) {
@@ -197,6 +176,8 @@ const CryptoSelectionModal = ({
             );
             const paymentStatus = statusResponse.data.payment_status;
 
+            setPaymentStatus(paymentStatus);
+
             // Update the stateList based on the payment status
             setStateList((prevState) =>
               prevState.map((stateItem) =>
@@ -218,15 +199,16 @@ const CryptoSelectionModal = ({
             } else if (paymentStatus === 'finished') {
               clearInterval(intervalId);
 
-              //Call creditTokens function
+              // Call creditTokens function
               await creditTokens(tokenAmount);
 
-              // Show confetti animation for 3 seconds before closing the modal
+              // Show confetti animation for 10 seconds before closing the modal
               setShowConfetti(true);
               setTimeout(() => {
                 setShowConfetti(false);
                 onSelectCrypto(selectedCrypto);
-              }, 3000);
+                onClose();
+              }, 10000);
             }
           } catch (error) {
             console.error('Error fetching payment status:', error);
@@ -248,6 +230,14 @@ const CryptoSelectionModal = ({
       el.select();
       document.execCommand('copy');
       document.body.removeChild(el);
+    }
+  };
+
+  const confirmButtonText = () => {
+    if (!selectedCrypto) {
+      return 'Select coin first';
+    } else {
+      return `Pay with ${selectedCrypto.name}`;
     }
   };
 
@@ -294,6 +284,7 @@ const CryptoSelectionModal = ({
                 <CloseButton onClick={onClose}>&times;</CloseButton>
               </div>
               <CryptoDropdown onChange={handleSelectCrypto}>
+                <option value="">Select a coin</option>
                 {cryptos.map((crypto, index) => (
                   <option key={index} value={crypto.symbol}>
                     {crypto.name}
@@ -303,20 +294,25 @@ const CryptoSelectionModal = ({
               <div>
                 <p>Current exchange rate: ...</p>
                 <p>Additional information: ...</p>
-                <div
+              </div>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  marginTop: '1rem',
+                }}
+              >
+                <ConfirmButton
+                  onClick={handleConfirmSelection}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  disabled={!selectedCrypto}
                   style={{
-                    display: 'flex',
-                    justifyContent: 'center',
+                    backgroundColor: selectedCrypto ? 'green' : 'grey',
                   }}
                 >
-                  <ConfirmButton
-                    onClick={handleConfirmSelection}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    Confirm Selection
-                  </ConfirmButton>
-                </div>
+                  {confirmButtonText()}
+                </ConfirmButton>
               </div>
             </>
           ) : (
@@ -367,13 +363,20 @@ const CryptoSelectionModal = ({
                   <p>{paymentDetails.valid_until}</p>
                 </>
               )}
+
+              {paymentStatus === 'finished' && (
+                <div>
+                  <h3>Token deposit:</h3>
+                  <CountUp start={0} end={tokenAmount} duration={5} />
+                </div>
+              )}
             </PaymentDetails>
+
           )}
           <StateList>
             {stateList.map((stateItem, index) => (
               <StateItem key={index} active={stateItem.active}>
                 {stateItem.label}
-                {!stateItem.active && <Spinner />}
               </StateItem>
             ))}
           </StateList>
@@ -384,4 +387,4 @@ const CryptoSelectionModal = ({
   );
 };
 
-export default CryptoSelectionModal;
+export default PaymentModal;

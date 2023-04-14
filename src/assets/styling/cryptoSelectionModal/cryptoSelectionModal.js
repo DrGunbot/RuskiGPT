@@ -112,6 +112,9 @@ export const CryptoDropdown = styled.select`
 `;
 
 export const ConfirmButton = styled(motion.button)`
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
   background-color: #4caf50;
   border: none;
   color: white;
@@ -124,6 +127,7 @@ export const ConfirmButton = styled(motion.button)`
   cursor: pointer;
   margin-top: 10px;
 `;
+
 
 export const FinalMessageContainer = styled.div`
   display: flex;
