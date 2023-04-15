@@ -10,7 +10,6 @@ import { arbitrum, mainnet, polygon } from 'wagmi/chains';
 import Home from "./components/Home";
 import PurchasePage from "./components/PurchasePage";
 
-
 const chains = [arbitrum, mainnet, polygon];
 const projectId = process.env.REACT_APP_PROJECT_ID
 const { provider } = configureChains(chains, [w3mProvider({ projectId })]);
@@ -39,4 +38,3 @@ function App() {
 }
 
 export default App;
-

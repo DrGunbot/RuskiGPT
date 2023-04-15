@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Nav, NavTitle, NavLinks, NavItem, NavLinkStyle} from '../assets/styling/navbar/NavBar.styles';
+import { Nav, NavTitle, NavLinks, NavItem, NavLinkStyle } from '../assets/styling/navbar/NavBar.styles';
 import { Web3Button } from '@web3modal/react';
 import { Web3Modal } from '@web3modal/react';
 import { menuVariants, navTitleVariants, navItemVariants } from '../assets/animation/navbar/NavBar.variants';
@@ -86,7 +86,7 @@ const NavBar = ({ projectId, ethereumClient }) => {
       />
       <img
         src={openAIImage}
-        onClick={handleHamburgerClick}
+        onClick={handleHamburgerClick} 
         initial={false}
         animate={isopen ? "open" : "closed"}
         alt="OpenAI Logo"
