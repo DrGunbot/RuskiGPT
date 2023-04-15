@@ -12,7 +12,6 @@ const Container = styled.div`
   min-height: 100vh;
   background: none;
   position: relative;
-  z-index: 0;
 `;
 
 const ModalButton = styled.button`

@@ -22,9 +22,6 @@ const supabaseUrl = 'https://jxyktcgpiwlirnfixrrd.supabase.co';
 const supabaseKey = process.env.REACT_APP_SUPABASE_API;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const apiClient = axios.create({
-  baseURL: 'http://localhost:5000',
-});
 
 const PaymentModal = ({
   onClose,
@@ -63,7 +60,7 @@ const PaymentModal = ({
   useEffect(() => {
     const fetchCoinListAndPrices = async () => {
       try {
-        const coinListResponse = await apiClient.get('/api/coinList');
+        const coinListResponse = await axios.get('/api/coinList');
         const cryptoList = coinListResponse.data.currencies.map((crypto) => ({
           symbol: crypto,
           name: crypto.toUpperCase(),
@@ -147,7 +144,7 @@ const PaymentModal = ({
         console.log('Selected crypto:', selectedCrypto);
         // Create the payment
         setIsFetchingPaymentInfo(true);
-        const paymentResponse = await apiClient.post('/api/create-payment', {
+        const paymentResponse = await axios.post('/api/create-payment', {
           price_currency: 'usd',
           price_amount: tokenAmount * 0.1,
           pay_currency: selectedCrypto.symbol,
@@ -171,9 +168,7 @@ const PaymentModal = ({
         const intervalId = setInterval(async () => {
           try {
             // Get the payment status
-            const statusResponse = await apiClient.get(
-              `/api/payment-status/${paymentId}`
-            );
+            const statusResponse = await axios.get(`/api/payment-status/${paymentId}`);
             const paymentStatus = statusResponse.data.payment_status;
 
             setPaymentStatus(paymentStatus);
