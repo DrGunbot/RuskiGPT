@@ -61,15 +61,20 @@ const PaymentModal = ({
     const fetchCoinListAndPrices = async () => {
       try {
         const coinListResponse = await axios.get('/api/coinList');
-        const cryptoList = coinListResponse.data.currencies.map((crypto) => ({
-          symbol: crypto,
-          name: crypto.toUpperCase(),
-        }));
-
-        const sortedCryptoList = cryptoList.sort((a, b) =>
-          a.name.localeCompare(b.name)
-        );
-        setCryptos(sortedCryptoList);
+        
+        if (coinListResponse.data && coinListResponse.data.currencies) {
+          const cryptoList = coinListResponse.data.currencies.map((crypto) => ({
+            symbol: crypto,
+            name: crypto.toUpperCase(),
+          }));
+  
+          const sortedCryptoList = cryptoList.sort((a, b) =>
+            a.name.localeCompare(b.name)
+          );
+          setCryptos(sortedCryptoList);
+        } else {
+          console.error('Error: coinListResponse.data.currencies is undefined.');
+        }
       } catch (error) {
         console.error(
           'Error fetching cryptocurrencies and token prices:',
@@ -77,9 +82,10 @@ const PaymentModal = ({
         );
       }
     };
-
+  
     fetchCoinListAndPrices();
   }, []);
+  
 
   const creditTokens = async (tokensToCredit) => {
     if (!walletAddress) {
