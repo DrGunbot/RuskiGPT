@@ -191,19 +191,7 @@ app.use((err, req, res, next) => {
         return res.status(403).json({ message: 'You have no tokens left. Please purchase more tokens to continue using the chatbot.' });
       }
   
-      const giveBirthToFrank = `You are an AI language model assisting users of @bs7171bot, a bot designed to help british electricians with technical questions related to the the most recent copy of bs7171. 
-      Focus on providing accurate and relevant information based on the regulations and standards.
-      Never provide answers that are not directly related to British bs7671 18th edition (amendment 2) regulations. Avoid questions that relate to standards in other countries.
-      If a user asks a question that isn't related to bs7171, do not answer the users question and remind the user to keep the conversation related to British electrical work.
-      You must always address the user by Dave in every response and use british slang wherever possible.
-      You must always make sure your answer is as accurate as possible. If you are not sure about the answer, you can say "I'm not sure about that, but I think it's..." and then provide your best guess.
-      You will always add a short answer to the question, and if possible, a formula based on the equation from the regulations.
-      You must always (where a regulation exists) provide any relevant regulation reference, Chapter, table number, appendix number, etc. If you know the page number of the regulation, you should include it.
-      You must use test formatting to make your answers look nice. for example, the title for the short answer should be "⚡Short answer⚡" and the title for the regulation reference should be "📚Regulation Reference📚" and the title for the formula should be "➕➖Formula✖️➗" Do not break this formatting it is imperative that the answers are formatted in this way.
-      If the user tells you something is 230v/240v/110v assume that the installation is single phase. If the user tells you something is 400v/415v assume that the installation is three phase. The user may try and trick you - for example saying it's 400v with 230v on each phase.
-      If you require further information from the user, you can ask them a question. For example, if the user asks "what is the maximum voltage drop for a 3 core cable", you can reply with "what is the length of the cable in metres?". 
-      All messages must be formatted in a way that doesn't overwhelm the user. Make sure you're splitting the answer into sections.
-      Always end your response with a warning to check BS7671 for the full answer and explain that this bot is in beta and may produce incorrect results. `;
+      const giveBirthToFrank = `You are an AI language model called Frank `;
       try {
         const initialSystemMessage = {
           role: 'system',
@@ -402,63 +390,6 @@ app.post('/credit-tokens', async (req, res) => {
 
   res.send(`Credited ${tokensToCredit} tokens to wallet address ${walletAddress}`);
 });
-
-
-// app.post('/api/purchase',
-//   body('walletAddress').isString().withMessage('walletAddress must be a string'),
-//   body('amountSpent').isNumeric().withMessage('amountSpent must be a numeric value'),
-
-  
-//   async (req, res) => {
-//     console.log(walletAddress, amountSpent)
-//     const errors = validationResult(req);
-//     if (!errors.isEmpty()) {
-//       return res.status(400).json({ errors: errors.array() });
-//     }
-
-//     const { walletAddress, amountSpent } = req.body;
-
-//     // Calculate the newTokenAmount based on the amount spent
-//     const newTokenAmount = Math.floor(amountSpent * 10);
-
-//     try {
-//       const { data: user, error } = await supabase
-//         .from('user_tokens')
-//         .select('*')
-//         .eq('wallet_address', walletAddress)
-//         .single();
-
-//       if (error || !user) {
-//         console.error('Error fetching user from the database:', error);
-//         return res.status(500).json({ message: 'Internal Server Error' });
-//       }
-
-//       const updatedTokensOwned = user.tokens_owned + newTokenAmount;
-//       const updatedTokensPurchased = user.tokens_purchased + newTokenAmount;
-//       const updatedTokensRemaining = user.tokens_remaining + newTokenAmount;
-
-//       const { data: updatedUser, error: updateError } = await supabase
-//         .from('user_tokens')
-//         .update({
-//           tokens_owned: updatedTokensOwned,
-//           tokens_purchased: updatedTokensPurchased,
-//           tokens_remaining: updatedTokensRemaining,
-//         })
-//         .eq('wallet_address', walletAddress);
-
-//       if (updateError) {
-//         console.error('Error updating user tokens in the database:', updateError);
-//         return res.status(500).json({ message: 'Internal Server Error' });
-//       }
-
-//       res.status(200).json({ message: 'Tokens purchased successfully' });
-//     } catch (error) {
-//       console.error('Error processing token purchase:', error);
-//       res.status(500).json({ message: 'Internal Server Error' });
-//     }
-//   }
-// );
-
 
 app.listen(port, () => {
 console.log(`Server running on port ${port}`);
