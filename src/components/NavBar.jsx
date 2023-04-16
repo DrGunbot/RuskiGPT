@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Nav, NavTitle, NavLinks, NavItem, NavLinkStyle } from '../assets/styling/navbar/NavBar.styles';
+import { Nav, NavLinks, NavItem, NavLinkStyle } from '../assets/styling/navbar/NavBar.styles';
 import { Web3Button } from '@web3modal/react';
 import { Web3Modal } from '@web3modal/react';
-import { menuVariants, navTitleVariants, navItemVariants } from '../assets/animation/navbar/NavBar.variants';
+import { menuVariants, navItemVariants } from '../assets/animation/navbar/NavBar.variants';
 import { AnimatePresence } from 'framer-motion';
 import openAIImage from '../assets/images/homepage/openAI.png';
 
@@ -20,12 +20,7 @@ const NavBar = ({ projectId, ethereumClient }) => {
 
   return (
     <Nav>
-      <NavTitle
-        initial={false}
-        whileHover={navTitleVariants.hover}
-      >
-        ChatGPT разблокирован
-      </NavTitle>
+      
       <AnimatePresence>
         {isopen && (
           <NavLinks
