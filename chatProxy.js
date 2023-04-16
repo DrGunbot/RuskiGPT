@@ -391,4 +391,6 @@ app.post('/credit-tokens', async (req, res) => {
   res.send(`Credited ${tokensToCredit} tokens to wallet address ${walletAddress}`);
 });
 
-module.exports = require('@vercel/node')(app);
+app.listen(port, () => {
+console.log(`Server running on port ${port}`);
+});
