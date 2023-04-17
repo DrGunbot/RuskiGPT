@@ -147,9 +147,46 @@ app.use((err, req, res, next) => {
   
   app.use(cors({ origin: allowedOrigins }));
 
+  app.post(
+    '/api/purchaseTokens',
+    body('connectedAccountAddress').isString().withMessage('connectedAccountAddress must be a string'),
+    body('token').isString().withMessage('token must be a string'),
+    body('amount').isNumeric().withMessage('amount must be a number'),
+    async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+  
+      const { connectedAccountAddress, token, amount } = req.body;
+      creditUserTokens(connectedAccountAddress, token, amount);
+      res.status(200).send({ message: `Credited ${amount} ${token} to ${connectedAccountAddress}` });
+    }
+  );
 
 
 
+app.post('/api/payment', async (req, res) => {
+  try {
+    const { price_amount, price_currency, pay_currency, payment_id, check_status } = req.body;
+
+    if (check_status && payment_id) {
+      const response = await apiClient.get(`/payment/${payment_id}`);
+      res.json(response.data);
+    } else {
+      console.log('Received parameters:', { price_amount, price_currency, pay_currency });
+      const response = await apiClient.post('/payment', {
+        price_amount,
+        price_currency,
+        pay_currency,
+      });
+      res.json(response.data);
+    }
+  } catch (error) {
+    console.error('Error processing payment:', error);
+    res.status(500).json({ message: 'Error processing payment' });
+  }
+});
 
 
 // backend payments API

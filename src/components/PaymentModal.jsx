@@ -175,11 +175,14 @@ const PaymentModal = ({
         const intervalId = setInterval(async () => {
           try {
             // Get the payment status
-            const statusResponse = await axios.get(`/api/payment`);
+            const statusResponse = await axios.post('/api/payment', {
+              payment_id: paymentId,
+              check_status: true,
+            });
             const paymentStatus = statusResponse.data.payment_status;
-
+      
             setPaymentStatus(paymentStatus);
-
+      
             // Update the stateList based on the payment status
             setStateList((prevState) =>
               prevState.map((stateItem) =>
@@ -188,7 +191,7 @@ const PaymentModal = ({
                   : stateItem
               )
             );
-
+      
             if (
               paymentStatus === 'failed' ||
               paymentStatus === 'expired' ||
@@ -200,10 +203,10 @@ const PaymentModal = ({
               }, 3000);
             } else if (paymentStatus === 'finished') {
               clearInterval(intervalId);
-
+      
               // Call creditTokens function
               await creditTokens(tokenAmount);
-
+      
               // Show confetti animation for 10 seconds before closing the modal
               setShowConfetti(true);
               setTimeout(() => {

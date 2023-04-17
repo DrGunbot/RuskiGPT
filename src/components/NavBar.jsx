@@ -7,27 +7,27 @@ import { AnimatePresence } from 'framer-motion';
 import openAIImage from '../assets/images/homepage/openAI.png';
 
 const NavBar = ({ projectId, ethereumClient }) => {
-  const [isopen, setisopen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
   const handleHamburgerClick = () => {
-    setisopen(!isopen);
+    setIsOpen(!isOpen);
   };
 
   const handleLinkClick = () => {
-    setisopen(false);
+    setIsOpen(false);
   };
 
   return (
     <Nav>
-      
       <AnimatePresence>
-        {isopen && (
+        {isOpen && (
           <NavLinks
             initial="closed"
-            animate={isopen ? "open" : "closed"}
+            animate="open"
             exit="closed"
             variants={menuVariants}
+            onCloseComplete={() => setIsOpen(false)}
           >
             <NavItem
               variants={navItemVariants}
@@ -81,9 +81,10 @@ const NavBar = ({ projectId, ethereumClient }) => {
       />
       <img
         src={openAIImage}
-        onClick={handleHamburgerClick} 
+        onClick={handleHamburgerClick}
         initial={false}
-        animate={isopen ? "open" : "closed"}
+        animate={isOpen ? "open" : "closed"}
+        transition={{ duration: 0.3 }}
         alt="OpenAI Logo"
         style={{
           cursor: 'pointer',
