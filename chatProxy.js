@@ -149,32 +149,8 @@ app.use((err, req, res, next) => {
 
 
 
-app.post('/api/create-payment', async (req, res) => {
-  try {
-    const { price_amount, price_currency, pay_currency } = req.body;
-    console.log('Received parameters:', { price_amount, price_currency, pay_currency });
-    const response = await apiClient.post('/payment', {
-      price_amount,
-      price_currency,
-      pay_currency,
-    });
-    res.json(response.data);
-  } catch (error) {
-    console.error('Error creating payment:', error);
-    res.status(500).json({ message: 'Error creating payment' });
-  }
-});
 
-app.get('/api/payment-status/:payment_id', async (req, res) => {
-  try {
-    const { payment_id } = req.params;
-    const response = await apiClient.get(`/payment/${payment_id}`);
-    res.json(response.data);
-  } catch (error) {
-    console.error('Error getting payment status:', error);
-    res.status(500).json({ message: 'Error getting payment status' });
-  }
-});
+
 
 // backend payments API
 

@@ -151,7 +151,7 @@ const PaymentModal = ({
         console.log('Selected crypto:', selectedCrypto);
         // Create the payment
         setIsFetchingPaymentInfo(true);
-        const paymentResponse = await axios.post('/api/create-payment', {
+        const paymentResponse = await axios.post('/api/payment', {
           price_currency: 'usd',
           price_amount: tokenAmount * 0.1,
           pay_currency: selectedCrypto.symbol,
@@ -175,7 +175,7 @@ const PaymentModal = ({
         const intervalId = setInterval(async () => {
           try {
             // Get the payment status
-            const statusResponse = await axios.get(`/api/payment-status/${paymentId}`);
+            const statusResponse = await axios.get(`/api/payment`);
             const paymentStatus = statusResponse.data.payment_status;
 
             setPaymentStatus(paymentStatus);
