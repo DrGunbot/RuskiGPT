@@ -48,17 +48,6 @@ app.use(express.json());
   app.use(cors({ origin: allowedOrigins }));
 
 
-app.get('/api/payment-status/:payment_id', async (req, res) => {
-  try {
-    const { payment_id } = req.params;
-    const response = await apiClient.get(`/payment/${payment_id}`);
-    res.json(response.data);
-  } catch (error) {
-    console.error('Error getting payment status:', error);
-    res.status(500).json({ message: 'Error getting payment status' });
-  }
-});
-
 // backend payments API
 
 app.post('/credit-tokens', async (req, res) => {
