@@ -3,7 +3,6 @@ import { AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import Confetti from 'react-confetti';
 import { getAccount } from '@wagmi/core';
-import { createClient } from '@supabase/supabase-js';
 import CountUp from 'react-countup';
 import {
   ModalContainer,
@@ -17,11 +16,6 @@ import {
   CryptoDropdown,
   ConfirmButton,
 } from '../assets/styling/cryptoSelectionModal/cryptoSelectionModal';
-
-const supabaseUrl = 'https://jxyktcgpiwlirnfixrrd.supabase.co';
-const supabaseKey = process.env.REACT_APP_SUPABASE_API;
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 
 const PaymentModal = ({
   onClose,
@@ -83,7 +77,6 @@ const PaymentModal = ({
       }
     };
   
-    // 
     fetchCoinListAndPrices();
   }, []);
   
@@ -94,39 +87,22 @@ const PaymentModal = ({
       return;
     }
 
-    const { data: user_tokens } = await supabase
-      .from('user_tokens')
-      .select('*')
-      .eq('wallet_address', walletAddress);
+    try {
+      const response = await axios.post('/api/creditTokens', {
+        walletAddress,
+        tokensToCredit,
+      });
 
-
-
-    if (!user_tokens || user_tokens.length === 0) {
-      console.error(
-        'No user token entry found for the connected wallet address'
-      );
-      return;
+      if (response.data.success) {
+        console.log(
+          `Credited ${tokensToCredit} tokens to wallet address ${walletAddress}`
+        );
+      } else {
+        console.error('Error crediting tokens:', response.data.error);
+      }
+    } catch (error) {
+      console.error('Error calling creditTokens API:', error);
     }
-
-    const userToken = user_tokens[0];
-
-    const updatedTokensOwned = (userToken.tokens_owned || 0) + tokensToCredit;
-
-    const { error: updateError } = await supabase
-      .from('user_tokens')
-      .update({
-        tokens_owned: updatedTokensOwned,
-      })
-      .eq('wallet_address', walletAddress);
-
-    if (updateError) {
-      console.error('Error updating user tokens:', updateError);
-      return;
-    }
-
-    console.log(
-      `Credited ${tokensToCredit} tokens to wallet address ${walletAddress}`
-    );
   };
 
   const handleSelectCrypto = (e) => {
