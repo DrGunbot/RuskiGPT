@@ -43,10 +43,138 @@ const openai = new OpenAIApi(openaiConfiguration);
 app.use(cors());
 app.use(express.json());
 
+const limiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 5, // limit each IP to 5 requests per minute
+  handler: (req, res) => {
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+    // const requestBody = JSON.stringify(req.body);
+    const walletID = req.body.connectedAccountAddress;
+    const message = `If you continue to try and spam me, ${walletID} will lose all credits and be added to the blacklist. You are on a cooldown period and have been warned.`;
+    
 
+    console.warn(`Rate limit exceeded: ${ip}`);
+    logToFile(`Rate limit exceeded: ${ip}\n`);
+
+    console.warn(`IP Address: ${ip}`);
+    console.warn(`User-Agent: ${userAgent}`);
+    // console.warn(`Request Body: ${requestBody}`);
+
+    logToFile(`IP Address: ${ip}\n`);
+    logToFile(`User-Agent: ${userAgent}\n`);
+    // logToFile(`Request Body: ${requestBody}\n`);
+    logToFile(`Wallet ID: ${walletID}\n`);
+
+    // Add the machine info to the logs
+    const machineInfo = `Machine Info: ${os.type()} ${os.release()} (${os.arch()})\n`;
+    console.warn(machineInfo);
+    logToFile(machineInfo);
+
+    res.status(429).json({ message });
+  },
+});
+
+
+// Middleware for logging and blocking attackers
+const blockedIPs = new Set();
+const MAX_FAILED_REQUESTS = 3;
+const WINDOW_SIZE = 60 * 1000; // 1 minute
+
+const shouldBlock = (ip) => {
+  if (blockedIPs.has(ip)) {
+    return true;
+  }
+
+  const now = Date.now();
+  const recentFailedRequests = failedRequests.filter((req) => req.ip === ip && now - req.timestamp < WINDOW_SIZE);
+
+  if (recentFailedRequests.length >= MAX_FAILED_REQUESTS) {
+    blockedIPs.add(ip);
+    console.warn(`Blocked IP address: ${ip}`);
+    logToFile(`Blocked IP address: ${ip}\n`, 'blocked_ips.log');
+    return true;
+  }
+
+  return false;
+};
+
+const failedRequests = [];
+
+const logToFile = (message) => {
+  const filePath = path.join(logFolderPath, 'server_errors.log');
+  fs.appendFile(filePath, message, (err) => {
+    if (err) {
+      console.error('Failed to write error to file:', err);
+    }
+  });
+};
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  logToFile(`${err.stack}\n`, 'server_errors.log');
+
+  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  const userAgent = req.headers['user-agent'];
+  const requestBody = JSON.stringify(req.body);
+  const message = 'Internal Server Error. Your request has been logged and will be investigated.';
+
+  console.error(`IP Address: ${ip}`);
+  console.error(`User-Agent: ${userAgent}`);
+  console.error(`Request Body: ${requestBody}`);
+
+  logToFile(`IP Address: ${ip}\n`, 'server_errors.log');
+  logToFile(`User-Agent: ${userAgent}\n`, 'server_errors.log');
+  logToFile(`Request Body: ${requestBody}\n`, 'server_errors.log');
+
+    // Add the machine info to the logs
+    const machineInfo = `Machine Info: ${os.type()} ${os.release()} (${os.arch()})\n`;
+    console.error(machineInfo);
+    logToFile(machineInfo, 'server_errors.log');
+  
+    if (shouldBlock(ip)) {
+      console.error(`Blocking IP Address: ${ip}`);
+      logToFile(`Blocking IP Address: ${ip}\n`, 'blocked_ips.log');
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    next();
+  
+    return res.status(500).json({ message });
+  
+  });
+  
+  const allowedOrigins = ['https://wiki.ninj.ai', 'http://localhost:5000'];
   
   app.use(cors({ origin: allowedOrigins }));
 
+
+
+app.post('/api/create-payment', async (req, res) => {
+  try {
+    const { price_amount, price_currency, pay_currency } = req.body;
+    console.log('Received parameters:', { price_amount, price_currency, pay_currency });
+    const response = await apiClient.post('/payment', {
+      price_amount,
+      price_currency,
+      pay_currency,
+    });
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error creating payment:', error);
+    res.status(500).json({ message: 'Error creating payment' });
+  }
+});
+
+app.get('/api/payment-status/:payment_id', async (req, res) => {
+  try {
+    const { payment_id } = req.params;
+    const response = await apiClient.get(`/payment/${payment_id}`);
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error getting payment status:', error);
+    res.status(500).json({ message: 'Error getting payment status' });
+  }
+});
 
 // backend payments API
 
