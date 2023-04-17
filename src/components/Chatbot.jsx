@@ -60,11 +60,10 @@ const Chatbot = ({ ethereumClient }) => {
     setUserInput(e.target.value);
   };
 
-  const apiUrl = 'http://localhost:5000/api/chat';
 
   const chatWithAI = useCallback(async (messages, connectedAccountAddress) => {
     try {
-      const response = await fetch(apiUrl, {
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
