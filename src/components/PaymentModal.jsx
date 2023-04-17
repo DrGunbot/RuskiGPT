@@ -155,6 +155,8 @@ const PaymentModal = ({
           price_currency: 'usd',
           price_amount: tokenAmount * 0.1,
           pay_currency: selectedCrypto.symbol,
+        }, {
+          baseURL: process.env.NEXT_PUBLIC_VERCEL_URL
         });
         console.log('Payment response:', paymentResponse.data);
 
@@ -175,7 +177,9 @@ const PaymentModal = ({
         const intervalId = setInterval(async () => {
           try {
             // Get the payment status
-            const statusResponse = await axios.get(`/api/payment-status/${paymentId}`);
+            const statusResponse = await axios.get(`/api/payment-status?payment_id=${paymentId}`, {
+              baseURL: process.env.NEXT_PUBLIC_VERCEL_URL
+            });
             const paymentStatus = statusResponse.data.payment_status;
 
             setPaymentStatus(paymentStatus);

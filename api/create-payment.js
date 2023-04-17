@@ -1,18 +1,10 @@
 const axios = require('axios');
-const NOWPAYMENTS_API_KEY = process.env.REACT_APP_NOWPAYMENTS_API_KEY;
 
-const apiClient = axios.create({
-  baseURL: 'https://api.nowpayments.io/v1',
-  headers: {
-    'x-api-key': `${NOWPAYMENTS_API_KEY}`,
-  },
-});
-
-export default async (req, res) => {
+module.exports = async (req, res) => {
   try {
     const { price_amount, price_currency, pay_currency } = req.body;
     console.log('Received parameters:', { price_amount, price_currency, pay_currency });
-    const response = await apiClient.post('/payment', {
+    const response = await axios.post(process.env.API_BASE_URL + '/payment', {
       price_amount,
       price_currency,
       pay_currency,
