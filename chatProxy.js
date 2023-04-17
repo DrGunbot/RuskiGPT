@@ -164,70 +164,70 @@ app.use((err, req, res, next) => {
     }
   );
   
-  app.post('/api/chat',
-    body('messages').isArray().withMessage('messages must be an array'),
-    body('connectedAccountAddress').isString().withMessage('connectedAccountAddress must be a string'),
-    limiter,
-    async (req, res) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
-      const { messages, connectedAccountAddress } = req.body;
+  // app.post('/api/chat',
+  //   body('messages').isArray().withMessage('messages must be an array'),
+  //   body('connectedAccountAddress').isString().withMessage('connectedAccountAddress must be a string'),
+  //   limiter,
+  //   async (req, res) => {
+  //     const errors = validationResult(req);
+  //     if (!errors.isEmpty()) {
+  //       return res.status(400).json({ errors: errors.array() });
+  //     }
+  //     const { messages, connectedAccountAddress } = req.body;
   
-      // Fetch the user's tokens from the database
-      const { data: user, error } = await supabase
-        .from('user_tokens')
-        .select('*')
-        .eq('wallet_address', connectedAccountAddress)
-        .single();
+  //     // Fetch the user's tokens from the database
+  //     const { data: user, error } = await supabase
+  //       .from('user_tokens')
+  //       .select('*')
+  //       .eq('wallet_address', connectedAccountAddress)
+  //       .single();
   
-      if (error || !user) {
-        console.error('Error fetching user from the database:', error);
-        return res.status(500).json({ message: 'Internal Server Error' });
-      }
+  //     if (error || !user) {
+  //       console.error('Error fetching user from the database:', error);
+  //       return res.status(500).json({ message: 'Internal Server Error' });
+  //     }
   
-      if (user.tokens_owned <= 0) {
-        return res.status(403).json({ message: 'You have no tokens left. Please purchase more tokens to continue using the chatbot.' });
-      }
+  //     if (user.tokens_owned <= 0) {
+  //       return res.status(403).json({ message: 'You have no tokens left. Please purchase more tokens to continue using the chatbot.' });
+  //     }
   
-      const giveBirthToFrank = `You are an AI language model called Frank `;
-      try {
-        const initialSystemMessage = {
-          role: 'system',
-          content: giveBirthToFrank,
-        };
-        const openAIResponse = await openai.createChatCompletion({
-          model: 'gpt-3.5-turbo',
-          messages: [
-            initialSystemMessage,
-            ...messages.map((msg) => ({
-              role: msg.role,
-              content: msg.content,
-            })),
-          ],
-        });
-        const response = openAIResponse.data.choices[0].message.content;
+  //     const giveBirthToFrank = `You are an AI language model called Frank `;
+  //     try {
+  //       const initialSystemMessage = {
+  //         role: 'system',
+  //         content: giveBirthToFrank,
+  //       };
+  //       const openAIResponse = await openai.createChatCompletion({
+  //         model: 'gpt-3.5-turbo',
+  //         messages: [
+  //           initialSystemMessage,
+  //           ...messages.map((msg) => ({
+  //             role: msg.role,
+  //             content: msg.content,
+  //           })),
+  //         ],
+  //       });
+  //       const response = openAIResponse.data.choices[0].message.content;
   
-        // Deduct a token from the user's balance
-        const { data: updatedUser, error } = await supabase
-          .from('user_tokens')
-          .update({ tokens_owned: user.tokens_owned - 1 })
-          .eq('wallet_address', connectedAccountAddress);
+  //       // Deduct a token from the user's balance
+  //       const { data: updatedUser, error } = await supabase
+  //         .from('user_tokens')
+  //         .update({ tokens_owned: user.tokens_owned - 1 })
+  //         .eq('wallet_address', connectedAccountAddress);
   
-        if (error) {
-          console.error('Error updating user tokens in the database:', error);
-          return res.status(500).json({ message: 'Internal Server Error' });
-        }
+  //       if (error) {
+  //         console.error('Error updating user tokens in the database:', error);
+  //         return res.status(500).json({ message: 'Internal Server Error' });
+  //       }
   
-        res.json(response);
-      } catch (error) {
-        console.error('Error communicating with OpenAI:', error);
-        logToFile(`Error communicating with OpenAI: ${error}\n`, 'server_errors.log');
-        res.status(500).json({ message: 'Internal Server Error. Your request has been logged and will be investigated.' });
-      }
-    }
-  );
+  //       res.json(response);
+  //     } catch (error) {
+  //       console.error('Error communicating with OpenAI:', error);
+  //       logToFile(`Error communicating with OpenAI: ${error}\n`, 'server_errors.log');
+  //       res.status(500).json({ message: 'Internal Server Error. Your request has been logged and will be investigated.' });
+  //     }
+  //   }
+  // );
   
   // Add wallet address to database when user connects wallet proxy server
   
@@ -293,20 +293,6 @@ app.post('/api/nowpayments/create-transaction', async (req, res) => {
   }
 });
 
-
-// app.get('/api/coinList', async (req, res) => {
-//   try {
-//     const response = await axios.get('https://api.nowpayments.io/v1/currencies', {
-//       headers: {
-//         'x-api-key': NOWPAYMENTS_API_KEY,
-//       },
-//     });
-//     res.status(200).json(response.data);
-//   } catch (error) {
-//     console.error('Error getting available currencies:', error);
-//     res.status(500).json({ message: 'Internal Server Error' });
-//   }
-// });
 
 app.get('/api/tokenPrices', async (req, res) => {
   try {
