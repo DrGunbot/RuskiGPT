@@ -342,22 +342,22 @@ const PaymentModal = ({
                       ref={walletAddressRef}
                       onClick={handleCopyWalletAddress}
                     >
-                      {paymentDetails?.pay_address ?? ''}
+                      {paymentDetails.pay_address}
                     </WalletAddress>
                   </p>
                   <p>Amount to send:</p>
                   <p>
-                  {paymentDetails?.pay_amount ?? ''}
-                  {paymentDetails?.pay_currency?.toUpperCase() ?? ''}
+                    {paymentDetails.pay_amount}{' '}
+                    {paymentDetails.pay_currency.toUpperCase()}
                   </p>
                   <p>Payment ID:</p>
-                  <p>{paymentDetails?.payment_id ?? ''}</p>
+                  <p>{paymentDetails.payment_id}</p>
                   <p>Purchase ID:</p>
-                  <p>{paymentDetails?.purchase_id ?? ''}</p>
+                  <p>{paymentDetails.purchase_id}</p>
                   <p>Valid until:</p>
-                  <p>{paymentDetails?.valid_until ?? ''}</p>
+                  <p>{paymentDetails.valid_until}</p>
                   <p>Amount received:</p>
-                  <p>{paymentDetails?.actually_paid ?? ''}</p>
+                  <p>{paymentDetails.actually_paid}</p>
                 </>
               )}
 
