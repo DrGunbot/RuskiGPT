@@ -119,11 +119,9 @@ const PurchaseTokens = () => {
   };
 
   const handleWalletConnection = async () => {
-    const ethereumClient = getAccount();
-  
-    if (ethereumClient) {
+    if (window.ethereum) {
       try {
-        const accounts = await ethereumClient.eth.requestAccounts();
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
         if (accounts.length > 0) {
           handlePayButtonClick();
         } else {
@@ -136,6 +134,7 @@ const PurchaseTokens = () => {
       setShowWalletConnectionModal(true);
     }
   };
+  
   
   
 
