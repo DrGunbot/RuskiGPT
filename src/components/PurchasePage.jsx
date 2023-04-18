@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
 import PaymentModal from './PaymentModal';
+import InformWalletConnectionModal from './InformWalletConnectionModal';
 import { getAccount } from '@wagmi/core';
 
 const Container = styled.div`
@@ -92,6 +93,7 @@ const infoVariants = {
 const PurchaseTokens = () => {
   const [tokens, setTokens] = useState(0);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showWalletConnectionModal, setShowWalletConnectionModal] = useState(false);
   const tokenValue = 0.1;
   // eslint-disable-next-line
   const [selectedCrypto, setSelectedCrypto] = useState(null);
@@ -116,6 +118,19 @@ const PurchaseTokens = () => {
     setShowPaymentModal(false);
   };
 
+  const handleWalletConnection = async () => {
+    try {
+      const accounts = await ethereumClient.eth.requestAccounts();
+      if (accounts.length > 0) {
+        handlePayButtonClick();
+      } else {
+        setShowWalletConnectionModal(true);
+      }
+    } catch (err) {
+      setShowWalletConnectionModal(true);
+    }
+  };
+
   return (
     <motion.div
       initial="initial"
@@ -124,78 +139,79 @@ const PurchaseTokens = () => {
     >
       <Container>
         <motion.h1
-        style={{ color: 'white', fontSize: '72px', textAlign: 'center' }}                    >
-                      {Array.from(`Потяните чтобы выбрать количество сообщений`).map((char, index) => (
-                        <Letter key={index} char={char} />
-                      ))}
-                    </motion.h1>
-                    <input
-                      type="range"
-                      min="100"
-                      max="5000"
-                      step="100"
-                      value={tokens}
-                      onChange={(e) => updateTokens(e.target.value)}
-                      style={{
-                        width: '50%',
-                        margin: '2rem 0',
-                        height: '30px',
-                        borderRadius: '5px',
-                        background: '#4caf50',
-                        outline: 'none',
-                      }}
-                    />
-                    <AnimatePresence>
-                      {tokens > 0 && (
-                        <motion.div
-                          initial="hidden"
-                          animate="visible"
-                          exit="hidden"
-                          variants={infoVariants}
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            padding: 20,
-                            borderRadius: 10,
-                            background: "#fff",
-                            border: '2px solid #4caf50',
-                            marginTop: '1rem',
-                          }}
-                        >
-                          <h2>Потяните, чтобы выбрать количество сообщений, которое вы хотите купить.</h2>
-                          <p>
-                          Нажмите кнопку оплаты, чтобы купить {tokens} сообщений за ${(tokens * tokenValue).toFixed(2)}
-                          </p>
-                          <div>
-                            <PayButton
-                              onClick={handlePayButtonClick}
-                            >
-                              Payоплатить
-                            </PayButton>
-                            <ModalButton
-                              style={{ background: "red", color: "#fff", cursor: "pointer" }}
-                              onClick={() => updateTokens(0)}
-                            >
-                              отменить
-                            </ModalButton>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                    {showPaymentModal && (
-                      <PaymentModal
-                        onClose={closePaymentModal}
-                        onSelectCrypto={handleSelectCrypto}
-                        tokenAmount={tokens}
-                        ethereumClient={ethereumClient}
-                      />
-                    )}
-                  </Container>
-                </motion.div>
-              );
-            };
-            
-            export default PurchaseTokens;
-            
+          style={{ color: 'white', fontSize: '72px', textAlign: 'center' }}
+        >
+          {Array.from(`Потяните чтобы выбрать количество сообщений`).map((char, index) => (
+            <Letter key={index} char={char} />
+          ))}
+        </motion.h1>
+        <input
+          type="range"
+          min="100"
+          max="5000"
+          step="100"
+          value={tokens}
+          onChange={(e) => updateTokens(e.target.value)}
+          style={{
+            width: '50%',
+            margin: '2rem 0',
+            height: '30px',
+            borderRadius: '5px',
+            background: '#4caf50',
+            outline: 'none',
+          }}
+        />
+        <AnimatePresence>
+          {tokens > 0 && (
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              variants={infoVariants}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 20,
+                borderRadius: 10,
+                background: "#fff",
+                border: '2px solid #4caf50',
+                marginTop: '1rem',
+              }}
+            >
+              <h2>Потяните, чтобы выбрать количество сообщений, которое вы хотите купить.</h2>
+              <p>
+                Нажмите кнопку оплаты, чтобы купить {tokens} сообщений за ${(tokens * tokenValue).toFixed(2)}
+              </p>
+              <div>
+                <PayButton onClick={handleWalletConnection}>Payоплатить</PayButton>
+                <ModalButton
+                  style={{ background: "red", color: "#fff", cursor: "pointer" }}
+                  onClick={() => updateTokens(0)}
+                >
+                  отменить
+                </ModalButton>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        {showPaymentModal && (
+          <PaymentModal
+            onClose={closePaymentModal}
+            onSelectCrypto={handleSelectCrypto}
+            tokenAmount={tokens}
+            ethereumClient={ethereumClient}
+          />
+        )}
+        {showWalletConnectionModal && (
+          <InformWalletConnectionModal onClose={() => setShowWalletConnectionModal(false)} />
+        )}
+      </Container>
+    </motion.div>
+  );
+};
+
+export default PurchaseTokens;
+
+       
