@@ -10,7 +10,6 @@ module.exports = async (req, res) => {
     walletAddress,
     payment_id,
     purchase_id,
-    txid,
   } = req.body;
 
   // Check if wallet address exists in the database
