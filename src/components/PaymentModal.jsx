@@ -177,7 +177,7 @@ const PaymentModal = ({
               setTimeout(() => {
                 onClose();
               }, 3000);
-            } else if (paymentStatus === 'finished') {
+            } else if (paymentStatus === 'sending') {
               clearInterval(intervalId);
       
               // Call creditTokens function
