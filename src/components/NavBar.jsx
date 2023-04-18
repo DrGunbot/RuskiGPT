@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Nav, NavLinks, NavItem, NavLinkStyle } from '../assets/styling/navbar/NavBar.styles';
-import { Web3Button } from '@web3modal/react';
-import { Web3Modal } from '@web3modal/react';
+import { Web3Button, useWeb3Modal } from '@web3modal/react';
 import { menuVariants, navItemVariants } from '../assets/animation/navbar/NavBar.variants';
 import { AnimatePresence } from 'framer-motion';
 import openAIImage from '../assets/images/homepage/openAI.png';
@@ -10,6 +9,14 @@ import axios from 'axios';
 const NavBar = ({ projectId, ethereumClient }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const { connect, disconnect, isConnected, provider } = useWeb3Modal();
+
+  useEffect(() => {
+    if (isConnected) {
+      const walletAddress = provider.selectedAddress;
+      handleWalletConnect(walletAddress);
+    }
+  }, [isConnected, provider]);
 
   const handleHamburgerClick = () => {
     setIsOpen(!isOpen);
@@ -26,6 +33,18 @@ const NavBar = ({ projectId, ethereumClient }) => {
     } catch (error) {
       console.error('Error adding wallet address:', error.message);
     }
+  };
+
+  const handleModalConnect = async () => {
+    await connect();
+    setModalOpen(false);
+  };
+
+  const handleModalClose = () => {
+    if (isConnected) {
+      disconnect();
+    }
+    setModalOpen(false);
   };
 
   return (
@@ -72,24 +91,18 @@ const NavBar = ({ projectId, ethereumClient }) => {
               whileTap={{ scale: 0.9 }}
             >
               <Web3Button onClick={() => setModalOpen(true)}>
-                Connect Wallet
+                {isConnected ? 'Disconnect Wallet' : 'Connect Wallet'}
               </Web3Button>
             </NavItem>
           </NavLinks>
         )}
       </AnimatePresence>
-      <Web3Modal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        projectId={projectId}
-        ethereumClient={ethereumClient}
-        themeVariables={{
-          '--w3m-font-family': 'Rubik, sans-serif',
-          '--w3m-accent-color': '#378805',
-          '--w3m-background-color': '#202121',
-        }}
-        onConnect={handleWalletConnect}
-      />
+      {modalOpen && (
+        <div>
+          <button onClick={handleModalConnect}>Connect</button>
+          <button onClick={handleModalClose}>Close</button>
+        </div>
+      )}
       <img
         src={openAIImage}
         onClick={handleHamburgerClick}
