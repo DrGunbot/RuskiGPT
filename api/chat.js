@@ -47,7 +47,7 @@ module.exports = async (req, res) => {
       if (user.tokens_owned <= 0) {
         return res.status(403).json({
           message:
-            "You have no tokens left. Please purchase more tokens to continue using the chatbot.",
+            "У вас не осталось токенов. Пожалуйста, купите больше токенов, чтобы продолжить использование чат-бота.",
         });
       }
 

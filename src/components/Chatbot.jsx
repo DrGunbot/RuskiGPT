@@ -79,7 +79,7 @@ const Chatbot = ({ ethereumClient }) => {
       return data;
     } catch (error) {
       console.error('Error communicating with server:', error);
-      return { message: 'Fatal error - No tokens were deducted' };
+      return { message: 'Кажется, сервер недоступен. Пожалуйста, свяжитесь с поддержкой.' };
     }
   }, []);
   
@@ -162,7 +162,7 @@ const Chatbot = ({ ethereumClient }) => {
                 <IoExpand size={14} />
               </ControlButton>
             </ButtonContainer>
-            <TypingStatus>{isTyping ? 'Bot is typing...' : ''}</TypingStatus>
+            <TypingStatus>{isTyping ? 'Бот набирает сообщение...' : ''}</TypingStatus>
           </Header>
           <MessageList ref={messageListRef}>
             {/* Map over the messages state variable and render a Message component for each one */}
@@ -176,9 +176,9 @@ const Chatbot = ({ ethereumClient }) => {
               type="text"
               value={userInput}
               onChange={handleUserInput}
-              placeholder="Type a message..."
+              placeholder="Введите ваше сообщение..."
             />
-            <SendButton type="submit">Send</SendButton>
+            <SendButton type="submit">Отправить</SendButton>
           </InputBar>
         </ChatContainer>
       )}
