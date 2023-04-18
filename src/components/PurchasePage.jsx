@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
 import PaymentModal from './PaymentModal';
@@ -95,10 +95,27 @@ const PurchaseTokens = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showWalletConnectionModal, setShowWalletConnectionModal] = useState(false);
   const tokenValue = 0.1;
-  // eslint-disable-next-line
   const [selectedCrypto, setSelectedCrypto] = useState(null);
+  const [walletAddress, setWalletAddress] = useState(null);
 
   const ethereumClient = getAccount();
+
+  const wagmiClient = ethereumClient?.wagmiClient;
+
+  useEffect(() => {
+    const fetchWalletAddress = async () => {
+      try {
+        const connectedAccount = await getAccount(wagmiClient);
+        setWalletAddress(connectedAccount.address);
+      } catch (error) {
+        console.error('Error getting connected account:', error);
+      }
+    };
+
+    if (wagmiClient) {
+      fetchWalletAddress();
+    }
+  }, [wagmiClient]);
 
   const handleSelectCrypto = (crypto) => {
     setSelectedCrypto(crypto);
@@ -119,25 +136,20 @@ const PurchaseTokens = () => {
   };
 
   const handleWalletConnection = async () => {
-    if (window.ethereum) {
-      try {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        if (accounts.length > 0) {
-          handlePayButtonClick();
-        } else {
-          setShowWalletConnectionModal(true);
-        }
-      } catch (err) {
+    try {
+      const connectedAccount = await getAccount(wagmiClient);
+  
+      if (connectedAccount && connectedAccount.address) {
+        handlePayButtonClick();
+      } else {
         setShowWalletConnectionModal(true);
       }
-    } else {
+    } catch (error) {
+      console.error('Error getting connected account:', error);
       setShowWalletConnectionModal(true);
     }
   };
   
-  
-  
-
   return (
     <motion.div
       initial="initial"
@@ -192,7 +204,7 @@ const PurchaseTokens = () => {
                 Нажмите кнопку оплаты, чтобы купить {tokens} сообщений за ${(tokens * tokenValue).toFixed(2)}
               </p>
               <div>
-              <PayButton onClick={() => handleWalletConnection()}>Payоплатить</PayButton>
+              <PayButton onClick={() => handleWalletConnection()}>оплатить</PayButton>
 
                 <ModalButton
                   style={{ background: "red", color: "#fff", cursor: "pointer" }}

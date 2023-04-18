@@ -34,7 +34,6 @@ const PaymentModal = ({
   const [stateList, setStateList] = useState([
     { label: 'waiting', active: false },
     { label: 'confirming', active: false },
-    { label: 'confirmed', active: false },
   ]);
 
   const [walletAddress, setWalletAddress] = useState(null);
@@ -179,7 +178,7 @@ const PaymentModal = ({
               setTimeout(() => {
                 onClose();
               }, 3000);
-            } else if (paymentStatus === 'confirmed') {
+            } else if (paymentStatus === 'confirming') {
               clearInterval(intervalId);
       
               // Call creditTokens function
@@ -358,7 +357,7 @@ const PaymentModal = ({
                 </>
               )}
 
-              {paymentStatus === 'confirmed' && (
+              {paymentStatus === 'confirming' && (
                 <div>
                   <h3>Token deposit:</h3>
                   <CountUp start={0} end={tokenAmount} duration={5} />
