@@ -122,16 +122,21 @@ const PurchaseTokens = () => {
     const ethereumClient = getAccount();
   
     if (ethereumClient) {
-      const accounts = await ethereumClient.eth.getAccounts();
-      if (accounts.length > 0) {
-        handlePayButtonClick();
-      } else {
+      try {
+        const accounts = await ethereumClient.eth.requestAccounts();
+        if (accounts.length > 0) {
+          handlePayButtonClick();
+        } else {
+          setShowWalletConnectionModal(true);
+        }
+      } catch (err) {
         setShowWalletConnectionModal(true);
       }
     } else {
       setShowWalletConnectionModal(true);
     }
   };
+  
   
 
   return (
@@ -188,7 +193,8 @@ const PurchaseTokens = () => {
                 Нажмите кнопку оплаты, чтобы купить {tokens} сообщений за ${(tokens * tokenValue).toFixed(2)}
               </p>
               <div>
-                <PayButton onClick={handleWalletConnection}>Payоплатить</PayButton>
+              <PayButton onClick={() => handleWalletConnection()}>Payоплатить</PayButton>
+
                 <ModalButton
                   style={{ background: "red", color: "#fff", cursor: "pointer" }}
                   onClick={() => updateTokens(0)}
