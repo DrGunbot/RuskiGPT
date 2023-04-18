@@ -91,18 +91,24 @@ const NavBar = ({ projectId, ethereumClient }) => {
               whileTap={{ scale: 0.9 }}
             >
               <Web3Button onClick={() => setModalOpen(true)}>
-                {isConnected ? 'Disconnect Wallet' : 'Connect Wallet'}
+                Connect Wallet
               </Web3Button>
             </NavItem>
           </NavLinks>
         )}
       </AnimatePresence>
-      {modalOpen && (
-        <div>
-          <button onClick={handleModalConnect}>Connect</button>
-          <button onClick={handleModalClose}>Close</button>
-        </div>
-      )}
+      <Web3Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        projectId={projectId}
+        ethereumClient={ethereumClient}
+        themeVariables={{
+          '--w3m-font-family': 'Rubik, sans-serif',
+          '--w3m-accent-color': '#378805',
+          '--w3m-background-color': '#202121',
+        }}
+        onConnect={handleWalletConnect}
+      />
       <img
         src={openAIImage}
         onClick={handleHamburgerClick}
