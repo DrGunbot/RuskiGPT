@@ -86,10 +86,15 @@ const Chatbot = ({ ethereumClient }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       const connectedAccountAddress = await getAccount(wagmiClient);
       console.log("Wagmi info for 1337bois", connectedAccountAddress);
+  
+      if (!connectedAccountAddress.isConnected) {
+        sendMessage("Please connect your wallet before sending a message.", "assistant");
+        return;
+      }
       
       sendMessage(userInput, "user");
       setUserInput("");
