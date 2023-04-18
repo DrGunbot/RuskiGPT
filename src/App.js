@@ -28,7 +28,7 @@ function App() {
         <NavBar projectId={projectId} ethereumClient={ethereumClient} />
         <Routes>
           <Route path="/" element={<RandomLetters />} />
-          {/* <Route path="/news" element={<RandomLetters />} /> */}
+          <Route path="/contact" element={<RandomLetters />} />
           <Route path="/buy" element={<PurchasePage ethereumClient={ethereumClient} />} />
         </Routes>
         <Chatbot ethereumClient={ethereumClient} />
