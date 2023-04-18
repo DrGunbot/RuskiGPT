@@ -15,6 +15,7 @@ export const MinimizedChatbot = styled(motion.button)`
   cursor: pointer;
   border: none;
   outline: none;
+  Z-index: 100;
   transition: background-color 0.3s;
 
   &:hover {
@@ -39,6 +40,7 @@ export const ChatContainer = styled(motion.div)`
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  Z-index: 100;
 `;
 
 export const Header = styled.header`

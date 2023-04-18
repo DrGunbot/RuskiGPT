@@ -9,12 +9,10 @@ export const Nav = styled(motion.nav)`
   align-items: center;
   padding: 1rem;
   position: relative;
-  background-color: #202121; // Change the background-color to be solid
   color: #50ae55;
   font-size: 2rem;
-  z-index: 5;
+  z-index: 3;
 `;
-
 
 // Navigation title
 export const NavTitle = styled(motion.h1)`
@@ -34,7 +32,7 @@ export const NavLinks = styled(motion.ul)`
   right: 0;
   width: 30%;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 1);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -52,7 +50,7 @@ export const NavItem = styled(motion.li)`
 // Navigation link
 export const NavLinkStyle = styled(NavLink)`
   text-decoration: none;
-  color: #50ae55;
+  color: #21c3c5;
   font-weight: bold;
   font-size: 2rem;
   &:hover {
