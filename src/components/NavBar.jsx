@@ -45,7 +45,7 @@ const NavBar = ({ projectId, ethereumClient }) => {
               whileTap={{ scale: 0.9 }}
             >
               <NavLinkStyle to="/" onClick={handleLinkClick} exact>
-                Home
+              домашняя страница
               </NavLinkStyle>
             </NavItem>
             <NavItem
@@ -54,7 +54,7 @@ const NavBar = ({ projectId, ethereumClient }) => {
               whileTap={{ scale: 0.9 }}
             >
               <NavLinkStyle to="/news" onClick={handleLinkClick}>
-                Contact
+              связаться
               </NavLinkStyle>
             </NavItem>
             <NavItem
@@ -63,7 +63,7 @@ const NavBar = ({ projectId, ethereumClient }) => {
               whileTap={{ scale: 0.9 }}
             >
               <NavLinkStyle to="/buy" onClick={handleLinkClick}>
-                Buy
+              Купить кредиты
               </NavLinkStyle>
             </NavItem>
             <NavItem
