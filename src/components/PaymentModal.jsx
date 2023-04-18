@@ -16,6 +16,45 @@ import {
   CryptoDropdown,
   ConfirmButton,
 } from '../assets/styling/cryptoSelectionModal/cryptoSelectionModal';
+import styled, { keyframes } from 'styled-components';
+
+const pulseAnimation = keyframes`
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+`;
+
+const IconWrapper = styled.div`
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: ${({ active }) => (active ? 'green' : 'grey')};
+  margin-right: 8px;
+  animation: ${({ active }) =>
+    active ? `${pulseAnimation} 1.5s infinite` : 'none'};
+`;
+
+// Update StateItem
+const StateItem = styled.li`
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: ${({ active }) => (active ? 'rgba(0, 255, 0, 0.1)' : 'none')};
+  border: 1px solid ${({ active }) => (active ? 'green' : 'grey')};
+  border-radius: 4px;
+  margin-bottom: 8px;
+  font-weight: ${({ active }) => (active ? 'bold' : 'normal')};
+`;
 
 const PaymentModal = ({
   onClose,
@@ -54,13 +93,13 @@ const PaymentModal = ({
     const fetchCoinListAndPrices = async () => {
       try {
         const coinListResponse = await axios.get('/api/coinList');
-        
+
         if (coinListResponse.data && coinListResponse.data.currencies) {
           const cryptoList = coinListResponse.data.currencies.map((crypto) => ({
             symbol: crypto,
             name: crypto.toUpperCase(),
           }));
-  
+
           const sortedCryptoList = cryptoList.sort((a, b) =>
             a.name.localeCompare(b.name)
           );
@@ -75,10 +114,10 @@ const PaymentModal = ({
         );
       }
     };
-  
+
     fetchCoinListAndPrices();
   }, []);
-  
+
 
   const creditTokens = async (tokensToCredit) => {
     if (!walletAddress) {
@@ -155,9 +194,9 @@ const PaymentModal = ({
               check_status: true,
             });
             const paymentStatus = statusResponse.data.payment_status;
-      
+
             setPaymentStatus(paymentStatus);
-      
+
             // Update the stateList based on the payment status
             setStateList((prevState) =>
               prevState.map((stateItem) =>
@@ -166,7 +205,7 @@ const PaymentModal = ({
                   : stateItem
               )
             );
-      
+
             if (
               paymentStatus === 'failed' ||
               paymentStatus === 'expired' ||
@@ -178,10 +217,10 @@ const PaymentModal = ({
               }, 3000);
             } else if (paymentStatus === 'confirmed') {
               clearInterval(intervalId);
-      
+
               // Call creditTokens function
               await creditTokens(tokenAmount);
-      
+
               // Show confetti animation for 10 seconds before closing the modal
               setShowConfetti(true);
               setTimeout(() => {
@@ -271,7 +310,7 @@ const PaymentModal = ({
                   </option>
                 ))}
               </CryptoDropdown>
-              
+
               <div
                 style={{
                   display: 'flex',
@@ -357,10 +396,12 @@ const PaymentModal = ({
           <StateList>
             {stateList.map((stateItem, index) => (
               <StateItem key={index} active={stateItem.active}>
+                <IconWrapper active={stateItem.active} />
                 {stateItem.label}
               </StateItem>
             ))}
           </StateList>
+
           {showConfetti && <Confetti numberOfPieces={200} />}
         </ModalContainer>
       </ModalOverlay>
