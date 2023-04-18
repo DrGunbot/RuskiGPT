@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Nav, NavLinks, NavItem, NavLinkStyle } from '../assets/styling/navbar/NavBar.styles';
-import { Web3Button, useWeb3Modal } from '@web3modal/react';
+import { Web3Button } from '@web3modal/react';
+import { Web3Modal } from '@web3modal/react';
 import { menuVariants, navItemVariants } from '../assets/animation/navbar/NavBar.variants';
 import { AnimatePresence } from 'framer-motion';
 import openAIImage from '../assets/images/homepage/openAI.png';
@@ -9,14 +10,6 @@ import axios from 'axios';
 const NavBar = ({ projectId, ethereumClient }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const { connect, disconnect, isConnected, provider } = useWeb3Modal();
-
-  useEffect(() => {
-    if (isConnected) {
-      const walletAddress = provider.selectedAddress;
-      handleWalletConnect(walletAddress);
-    }
-  }, [isConnected, provider]);
 
   const handleHamburgerClick = () => {
     setIsOpen(!isOpen);
@@ -33,18 +26,6 @@ const NavBar = ({ projectId, ethereumClient }) => {
     } catch (error) {
       console.error('Error adding wallet address:', error.message);
     }
-  };
-
-  const handleModalConnect = async () => {
-    await connect();
-    setModalOpen(false);
-  };
-
-  const handleModalClose = () => {
-    if (isConnected) {
-      disconnect();
-    }
-    setModalOpen(false);
   };
 
   return (
