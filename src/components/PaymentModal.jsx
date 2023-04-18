@@ -31,8 +31,8 @@ const PaymentModal = ({
   const [stateList, setStateList] = useState([
     { label: 'waiting', active: false },
     { label: 'confirming', active: false },
+    { label: 'confirmed', active: false },
     { label: 'sending', active: false },
-    { label: 'finished', active: false },
   ]);
 
   const [walletAddress, setWalletAddress] = useState(null);
