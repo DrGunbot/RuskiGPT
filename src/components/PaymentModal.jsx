@@ -340,12 +340,16 @@ const PaymentModal = ({
                   </p>
                   <p>Payment ID:</p>
                   <p>{paymentDetails.payment_id}</p>
+                  <p>Purchase ID:</p>
+                  <p>{paymentDetails.purchase_id}</p>
                   <p>Valid until:</p>
                   <p>{paymentDetails.valid_until}</p>
+                  <p>Amount received:</p>
+                  <p>{paymentDetails.actually_paid}</p>
                 </>
               )}
 
-              {paymentStatus === 'finished' && (
+              {paymentStatus === 'sending' && (
                 <div>
                   <h3>Token deposit:</h3>
                   <CountUp start={0} end={tokenAmount} duration={5} />
