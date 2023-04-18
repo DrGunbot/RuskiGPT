@@ -41,7 +41,7 @@ module.exports = async (req, res) => {
 
       if (error || !user) {
         console.error("Error fetching user from the database:", error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ message: "Ваш кошелек, кажется, подключен, но вы не приобрели никаких токенов. Чтобы использовать бота, вам необходимо приобрести токены и быть добавленным в базу данных." });
       }
 
       if (user.tokens_owned <= 0) {
