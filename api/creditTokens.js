@@ -40,5 +40,5 @@ module.exports = async (req, res) => {
     return;
   }
 
-  res.send(`Credited ${tokensToCredit} tokens to wallet address ${walletAddress}`);
+  res.send(`Зачислено ${tokensToCredit} токенов на кошелек с адресом ${walletAddress}.`);
 };

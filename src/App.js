@@ -7,8 +7,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum';
 import { configureChains, createClient, WagmiConfig } from 'wagmi';
 import { arbitrum, mainnet, polygon } from 'wagmi/chains';
-import Home from "./components/Home";
 import PurchasePage from "./components/PurchasePage";
+import RandomLetters from "./components/HomeText";
 
 const chains = [arbitrum, mainnet, polygon];
 const projectId = process.env.REACT_APP_PROJECT_ID
@@ -27,8 +27,8 @@ function App() {
         <Background />
         <NavBar projectId={projectId} ethereumClient={ethereumClient} />
         <Routes>
-          <Route path="/" element={<Home />} />
-          {/* <Route path="/news" element={<PurchasePage />} /> */}
+          <Route path="/" element={<RandomLetters />} />
+          {/* <Route path="/news" element={<RandomLetters />} /> */}
           <Route path="/buy" element={<PurchasePage ethereumClient={ethereumClient} />} />
         </Routes>
         <Chatbot ethereumClient={ethereumClient} />

@@ -90,6 +90,7 @@ const NavBar = ({ projectId, ethereumClient }) => {
           cursor: 'pointer',
           width: '40px',
           height: '40px',
+          zIndex: '100',
         }}
       />
     </Nav>

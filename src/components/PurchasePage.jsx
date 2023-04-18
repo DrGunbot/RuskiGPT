@@ -124,9 +124,8 @@ const PurchaseTokens = () => {
     >
       <Container>
         <motion.h1
-                    style={{ color: 'white', fontSize: '72px' }}
-                    >
-                      {Array.from(`Slide into my DM's`).map((char, index) => (
+        style={{ color: 'white', fontSize: '72px', textAlign: 'center' }}                    >
+                      {Array.from(`Потяните чтобы выбрать количество сообщений`).map((char, index) => (
                         <Letter key={index} char={char} />
                       ))}
                     </motion.h1>
@@ -165,21 +164,21 @@ const PurchaseTokens = () => {
                             marginTop: '1rem',
                           }}
                         >
-                          <h2>Slide me to select the amount of messages you'd like to buy</h2>
+                          <h2>Потяните, чтобы выбрать количество сообщений, которое вы хотите купить.</h2>
                           <p>
-                            Click the pay button to purchase {tokens} messages for ${(tokens * tokenValue).toFixed(2)}
+                          Нажмите кнопку оплаты, чтобы купить {tokens} сообщений за ${(tokens * tokenValue).toFixed(2)}
                           </p>
                           <div>
                             <PayButton
                               onClick={handlePayButtonClick}
                             >
-                              Pay
+                              Payоплатить
                             </PayButton>
                             <ModalButton
                               style={{ background: "red", color: "#fff", cursor: "pointer" }}
                               onClick={() => updateTokens(0)}
                             >
-                              Cancel
+                              отменить
                             </ModalButton>
                           </div>
                         </motion.div>

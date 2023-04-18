@@ -9,11 +9,12 @@ export const Nav = styled(motion.nav)`
   align-items: center;
   padding: 1rem;
   position: relative;
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: #202121; // Change the background-color to be solid
   color: #50ae55;
   font-size: 2rem;
-  z-index: 0;
+  z-index: 5;
 `;
+
 
 // Navigation title
 export const NavTitle = styled(motion.h1)`

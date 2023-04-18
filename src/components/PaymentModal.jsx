@@ -216,9 +216,9 @@ const PaymentModal = ({
 
   const confirmButtonText = () => {
     if (!selectedCrypto) {
-      return 'Select coin first';
+      return 'Сначала вы должны выбрать монету.';
     } else {
-      return `Pay with ${selectedCrypto.name}`;
+      return `Оплатить с помощью ${selectedCrypto.name}`;
     }
   };
 
@@ -261,21 +261,18 @@ const PaymentModal = ({
                   alignItems: 'center',
                 }}
               >
-                <h2>What coin do you want to pay with?</h2>
+                <h2>Какой монетой вы хотите заплатить?</h2>
                 <CloseButton onClick={onClose}>&times;</CloseButton>
               </div>
               <CryptoDropdown onChange={handleSelectCrypto}>
-                <option value="">Select a coin</option>
+                <option value="">Выберите монету.</option>
                 {cryptos.map((crypto, index) => (
                   <option key={index} value={crypto.symbol}>
                     {crypto.name}
                   </option>
                 ))}
               </CryptoDropdown>
-              <div>
-                <p>Current exchange rate: ...</p>
-                <p>Additional information: ...</p>
-              </div>
+              
               <div
                 style={{
                   display: 'flex',
