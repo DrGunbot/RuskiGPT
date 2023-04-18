@@ -92,7 +92,7 @@ const Chatbot = ({ ethereumClient }) => {
       console.log("Wagmi info for 1337bois", connectedAccountAddress);
   
       if (!connectedAccountAddress.isConnected) {
-        sendMessage("Please connect your wallet before sending a message.", "assistant");
+        sendMessage("Перед отправкой сообщений необходимо подключить свой кошелек. Вы можете сделать это, нажав кнопку в правом верхнем углу.", "assistant");
         return;
       }
       
