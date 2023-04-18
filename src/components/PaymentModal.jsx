@@ -132,7 +132,10 @@ const PaymentModal = ({
           price_currency: 'usd',
           price_amount: tokenAmount * 0.1,
           pay_currency: selectedCrypto.symbol,
+          purchase_id: paymentDetails.purchase_id, // Add purchase_id
+          payment_id: paymentDetails.payment_id, // Add txid
         });
+        
         console.log('Payment response:', paymentResponse.data);
 
         // Set the payment details state with the received information

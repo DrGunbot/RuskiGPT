@@ -46,7 +46,6 @@ module.exports = async (req, res) => {
         wallet_address: walletAddress,
         payment_id: payment_id,
         purchase_id: purchase_id,
-        txid: txid,
       },
     ]);
 
