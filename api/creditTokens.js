@@ -28,11 +28,10 @@ module.exports = async (req, res) => {
   const userToken = user_tokens[0];
 
   const updatedTokensOwned = (userToken.tokens_owned || 0) + tokensToCredit;
-  const updatedTokensPurchased = (userToken.tokens_purchased || 0) + tokensToCredit;
 
   const { error: updateError } = await supabase
     .from('user_tokens')
-    .update({ tokens_owned: updatedTokensOwned, tokens_purchased: updatedTokensPurchased })
+    .update({ tokens_owned: updatedTokensOwned })
     .eq('wallet_address', walletAddress);
 
   if (updateError) {
