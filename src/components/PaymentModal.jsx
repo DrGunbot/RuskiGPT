@@ -28,7 +28,7 @@ const PaymentModal = ({
 }) => {
   const [cryptos, setCryptos] = useState([]);
   const [selectedCrypto, setSelectedCrypto] = useState(null);
-  const [paymentDetails, setPaymentDetails] = useState({});
+  const [paymentDetails, setPaymentDetails] = useState(null);
   const [isFetchingPaymentInfo, setIsFetchingPaymentInfo] = useState(false);
   const walletAddressRef = useRef(null);
   const [stateList, setStateList] = useState([
@@ -87,13 +87,16 @@ const PaymentModal = ({
       console.error('No wallet address found');
       return;
     }
-
+  
+    // Ensure tokensToCredit is a number
+    tokensToCredit = parseInt(tokensToCredit, 10);
+  
     try {
       const response = await axios.post('/api/creditTokens', {
         walletAddress,
         tokensToCredit,
       });
-
+  
       if (response.data.success) {
         console.log(
           `Credited ${tokensToCredit} tokens to wallet address ${walletAddress}`
@@ -105,6 +108,7 @@ const PaymentModal = ({
       console.error('Error calling creditTokens API:', error);
     }
   };
+  
 
   const handleSelectCrypto = (e) => {
     const selected = e.target.value;
@@ -132,17 +136,13 @@ const PaymentModal = ({
           price_currency: 'usd',
           price_amount: tokenAmount * 0.1,
           pay_currency: selectedCrypto.symbol,
-          purchase_id: paymentDetails.purchase_id, // Add purchase_id
-          payment_id: paymentDetails.payment_id, // Add txid
         });
-        
         console.log('Payment response:', paymentResponse.data);
 
         // Set the payment details state with the received information
         setPaymentDetails(paymentResponse.data);
         setIsFetchingPaymentInfo(false);
-        const paymentId = paymentResponse.data?.payment_id ?? '';
-
+        const paymentId = paymentResponse.data.payment_id;
 
         // Start the transaction progress updates
         setStateList((prevState) =>
