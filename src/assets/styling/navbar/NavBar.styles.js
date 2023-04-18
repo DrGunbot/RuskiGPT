@@ -30,7 +30,7 @@ export const NavLinks = styled(motion.ul)`
   position: fixed;
   top: 0;
   right: 0;
-  width: 30%;
+  width: 50%;
   height: 100vh;
   background-color: rgba(0, 0, 0, 1);
   display: flex;
