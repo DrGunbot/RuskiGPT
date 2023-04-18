@@ -14,6 +14,18 @@ export const ModalOverlay = styled(motion.div)`
   z-index: 0;
 `;
 
+export const PulsatingText = styled(motion.p)`
+  font-size: 1.2rem;
+  text-align: center;
+  margin-bottom: 20px;
+`;
+
+export const pulsate = {
+  initial: { opacity: 1, scale: 1 },
+  animate: { opacity: 0.5, scale: 1.2 },
+};
+
+
 export const StateList = styled.ol`
   list-style-type: none;
   padding: 0;
