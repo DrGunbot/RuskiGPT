@@ -128,7 +128,7 @@ font-size: 14px;
 export const SendButton = styled.button`
 background-color: #4caf50;
 color: #fff;
-font-size: 14px;
+font-size: 10px;
 padding: 8px 12px;
 margin-left: 10px;
 border: none;
