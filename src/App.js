@@ -9,6 +9,7 @@ import { configureChains, createClient, WagmiConfig } from 'wagmi';
 import { arbitrum, mainnet, polygon } from 'wagmi/chains';
 import PurchasePage from "./components/PurchasePage";
 import RandomLetters from "./components/HomeText";
+import SupportPage from "./components/JoinGroup";
 
 const chains = [arbitrum, mainnet, polygon];
 const projectId = process.env.REACT_APP_PROJECT_ID
@@ -28,7 +29,7 @@ function App() {
         <NavBar projectId={projectId} ethereumClient={ethereumClient} />
         <Routes>
           <Route path="/" element={<RandomLetters />} />
-          <Route path="/contact" element={<RandomLetters />} />
+          <Route path="/contact" element={<SupportPage />} />
           <Route path="/buy" element={<PurchasePage ethereumClient={ethereumClient} />} />
         </Routes>
         <Chatbot ethereumClient={ethereumClient} />

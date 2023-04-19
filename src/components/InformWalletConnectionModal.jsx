@@ -65,9 +65,9 @@ const InformWalletConnectionModal = ({ onClose }) => {
   return (
     <ModalContainer onClick={onClose}>
       <ModalContent onClick={(e) => e.stopPropagation()}>
-        <Title>No wallet connected!</Title>
+        <Title>Кошелек не подключен!</Title>
         <Text>
-          A web3 connection is required in order to link your chat tokens to the correct account. You cannot purchase tokens until a valid wallet connection is obtained.
+        Требуется подключение к Web3 для связывания ваших токенов чата с соответствующим аккаунтом. Вы не сможете приобрести токены до тех пор, пока не будет получено действительное подключение к кошельку.
         </Text>
       </ModalContent>
     </ModalContainer>

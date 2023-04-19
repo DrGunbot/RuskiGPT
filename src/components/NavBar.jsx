@@ -53,7 +53,7 @@ const NavBar = ({ projectId, ethereumClient }) => {
               whileHover={navItemVariants.hover}
               whileTap={{ scale: 0.9 }}
             >
-              <NavLinkStyle to="/news" onClick={handleLinkClick}>
+              <NavLinkStyle to="/contact" onClick={handleLinkClick}>
               связаться
               </NavLinkStyle>
             </NavItem>
