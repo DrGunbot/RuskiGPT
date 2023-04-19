@@ -89,7 +89,7 @@ const SupportPage = () => {
         variants={buttonVariants}
         onClick={handleClick}
         >
-          Join Our Support Group
+          Присоединяйтесь к нашей группе поддержки
         </Button>
       </Container>
     );
