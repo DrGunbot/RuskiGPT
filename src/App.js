@@ -10,6 +10,9 @@ import { arbitrum, mainnet, polygon } from 'wagmi/chains';
 import PurchasePage from "./components/PurchasePage";
 import RandomLetters from "./components/HomeText";
 import SupportPage from "./components/JoinGroup";
+import { inject } from '@vercel/analytics';
+ 
+inject();
 
 const chains = [arbitrum, mainnet, polygon];
 const projectId = process.env.REACT_APP_PROJECT_ID
