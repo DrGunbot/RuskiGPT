@@ -317,7 +317,7 @@ const PaymentModal = ({
                   alignItems: 'center',
                 }}
               >
-                <h3>Payment Details</h3>
+                <h3>Детали оплаты - убедитесь, что вы останетесь на этой странице, пока транзакция не будет завершена!</h3>
                 <CloseButton onClick={onClose}>&times;</CloseButton>
               </div>
               {isFetchingPaymentInfo ? (
@@ -331,12 +331,12 @@ const PaymentModal = ({
                 >
                   <Spinner />
                   <p style={{ marginTop: '10px', marginBottom: '10px' }}>
-                    Grabbing payment details...
+                  Получение деталей оплаты...
                   </p>
                 </div>
               ) : (
                 <>
-                  <p>Send the payment to the following address:</p>
+                  <p>Отправьте платеж на следующий адрес:</p>
                   <p>
                     <WalletAddress
                       ref={walletAddressRef}
@@ -345,25 +345,23 @@ const PaymentModal = ({
                       {paymentDetails.pay_address}
                     </WalletAddress>
                   </p>
-                  <p>Amount to send:</p>
+                  <p>Сумма к отправке:</p>
                   <p>
                     {paymentDetails.pay_amount}{' '}
                     {paymentDetails.pay_currency.toUpperCase()}
                   </p>
-                  <p>Payment ID:</p>
+                  <p>ID платежа:</p>
                   <p>{paymentDetails.payment_id}</p>
-                  <p>Purchase ID:</p>
+                  <p>ID покупки:</p>
                   <p>{paymentDetails.purchase_id}</p>
-                  <p>Valid until:</p>
+                  <p>Действительно до:</p>
                   <p>{paymentDetails.valid_until}</p>
-                  <p>Amount received:</p>
-                  <p>{paymentDetails.actually_paid}</p>
                 </>
               )}
 
               {paymentStatus === 'confirming' && (
                 <div>
-                  <h3>Token deposit:</h3>
+                  <h3>Токенов депозитировано:</h3>
                   <CountUp start={0} end={tokenAmount} duration={5} />
                 </div>
               )}
@@ -377,7 +375,7 @@ const PaymentModal = ({
               </StateItem>
             ))}
           </StateList>
-          {showConfetti && <Confetti numberOfPieces={200} />}
+          {showConfetti && <Confetti numberOfPieces={300} />}
         </ModalContainer>
       </ModalOverlay>
     </AnimatePresence>
